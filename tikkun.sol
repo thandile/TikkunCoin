@@ -7,7 +7,7 @@ pragma solidity ^0.4.18;
 // Symbol      : TKK
 // Name        : Tikkun Token
 // Total supply: Flexible
-// Decimals    : 18
+// Decimals    : 2
 //
 // Enjoy.
 //
@@ -115,17 +115,15 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     function TikkunToken() public {
         symbol = "TKK";
         name = "Tikkun Token";
-        decimals = 18;
+        decimals = 2;
     }
-
 
     // ------------------------------------------------------------------------
     // Total supply
     // ------------------------------------------------------------------------
     function totalSupply() public constant returns (uint) {
-        return _totalSupply  - balances[address(0)];
+        return _totalSupply - balances[address(0)];
     }
-
 
     // ------------------------------------------------------------------------
     // Get the token balance for account `tokenOwner`
@@ -133,7 +131,6 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     function balanceOf(address tokenOwner) public constant returns (uint balance) {
         return balances[tokenOwner];
     }
-
 
     // ------------------------------------------------------------------------
     // Transfer the balance from token owner's account to `to` account
@@ -143,10 +140,9 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     function transfer(address to, uint tokens) public returns (bool success) {
         balances[msg.sender] = safeSub(balances[msg.sender], tokens);
         balances[to] = safeAdd(balances[to], tokens);
-        Transfer(msg.sender, to, tokens);
+        emit Transfer(msg.sender, to, tokens);
         return true;
     }
-
 
     // ------------------------------------------------------------------------
     // Token owner can approve for `spender` to transferFrom(...) `tokens`
@@ -158,10 +154,9 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     // ------------------------------------------------------------------------
     function approve(address spender, uint tokens) public returns (bool success) {
         allowed[msg.sender][spender] = tokens;
-        Approval(msg.sender, spender, tokens);
+        emit Approval(msg.sender, spender, tokens);
         return true;
     }
-
 
     // ------------------------------------------------------------------------
     // Transfer `tokens` from the `from` account to the `to` account
@@ -176,10 +171,20 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
         balances[from] = safeSub(balances[from], tokens);
         allowed[from][msg.sender] = safeSub(allowed[from][msg.sender], tokens);
         balances[to] = safeAdd(balances[to], tokens);
-        Transfer(from, to, tokens);
+        emit Transfer(from, to, tokens);
         return true;
     }
 
+    // -----------------------------------------------------------------------
+    // when someone buys tokens the number of tokens is increased then 
+    // they are transfered to the buyer's address
+    // -----------------------------------------------------------------------
+    function buyTKK(uint tokens) public returns(bool){
+        //need contact address, represented as 0x0 for now
+        increaseSupply(tokens, 0x0);
+        transferFrom(0x0, msg.sender, tokens);
+        return true;
+    }
 
     // ------------------------------------------------------------------------
     // Returns the amount of tokens approved by the owner that can be
@@ -189,7 +194,6 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
         return allowed[tokenOwner][spender];
     }
 
-
     // ------------------------------------------------------------------------
     // Token owner can approve for `spender` to transferFrom(...) `tokens`
     // from the token owner's account. The `spender` contract function
@@ -197,7 +201,7 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     // ------------------------------------------------------------------------
     function approveAndCall(address spender, uint tokens, bytes data) public returns (bool success) {
         allowed[msg.sender][spender] = tokens;
-        Approval(msg.sender, spender, tokens);
+        emit Approval(msg.sender, spender, tokens);
         ApproveAndCallFallBack(spender).receiveApproval(msg.sender, tokens, this, data);
         return true;
     }
@@ -211,21 +215,21 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
         // FIXME: replace with oralized exchange rate for eth to dollar, then convert to rands
         balances[msg.sender] = safeAdd(balances[msg.sender], tokens);
         _totalSupply = safeAdd(_totalSupply, tokens);
-        Transfer(address(0), msg.sender, tokens);
+        emit Transfer(address(0), msg.sender, tokens);
         owner.transfer(msg.value);
     }
 
     function increaseSupply(uint value, address to) public returns (bool) {
-        totalSupply = safeAdd(totalSupply, value);
-        balances[for] = safeAdd(balances[to], value);
-        Transfer(0, to, value);
+        _totalSupply = safeAdd(_totalSupply, value);
+        balances[to] = safeAdd(balances[to], value);
+        emit Transfer(0, to, value);
         return true;
     }
 
     function decreaseSupply(uint value, address from) public returns (bool) {
         balances[from] = safeSub(balances[from], value);
-        totalSupply = safeSub(totalSupply, value);  
-        Transfer(from, 0, value);
+        _totalSupply = safeSub(_totalSupply, value);  
+        emit Transfer(from, 0, value);
         return true;
     }
 
