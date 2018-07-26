@@ -103,7 +103,7 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     string public symbol;
     string public  name;
     uint8 public decimals;
-    uint public _totalSupply;
+    uint public totalSupply;
 
     mapping(address => uint) balances;
     mapping(address => mapping(address => uint)) allowed;
@@ -116,14 +116,14 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
         symbol = "TKK";
         name = "Tikkun Token";
         decimals = 2;
-        _totalSupply = 1000000;
+        totalSupply = 0;
     }
 
     // ------------------------------------------------------------------------
     // Total supply
     // ------------------------------------------------------------------------
     function totalSupply() public constant returns (uint) {
-        return _totalSupply - balances[address(0)];
+        return totalSupply - balances[address(0)];
     }
 
     // ------------------------------------------------------------------------
@@ -180,12 +180,12 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     // when someone buys tokens the number of tokens is increased then 
     // they are transfered to the buyer's address
     // -----------------------------------------------------------------------
-    function buyTKK(uint tokens) public returns(bool){
+    //function buyTKK(uint tokens) public returns(bool){
         //need contact address, represented as 0x0 for now
-        increaseSupply(tokens);
-        transferFrom(0x0, msg.sender, tokens);
-        return true;
-    }
+        //increaseSupply(tokens, msg.sender);
+        //transferFrom(0x0, msg.sender, tokens);
+        //return true;
+    //}
 
     // ------------------------------------------------------------------------
     // Returns the amount of tokens approved by the owner that can be
@@ -215,21 +215,22 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
         tokens = msg.value * 1000;
         // FIXME: replace with oralized exchange rate for eth to dollar, then convert to rands
         balances[msg.sender] = safeAdd(balances[msg.sender], tokens);
-        _totalSupply = safeAdd(_totalSupply, tokens);
+        totalSupply = safeAdd(totalSupply, tokens);
         emit Transfer(address(0), msg.sender, tokens);
         owner.transfer(msg.value);
     }
 
-    function increaseSupply(uint value) public returns (bool) {
-        _totalSupply = safeAdd(_totalSupply, value);
-        balances[msg.sender] = safeAdd(balances[msg.sender], value);
-        emit Transfer(address(0), msg.sender, value);
+    function increaseSupply(uint value, address to) public returns (bool) {
+        if (msg.sender != owner) return;
+        totalSupply = safeAdd(totalSupply, value);
+        balances[to] = safeAdd(balances[to], value);
+        emit Transfer(address(0), to, value);
         return true;
     }
 
     function decreaseSupply(uint value) public returns (bool) {
         balances[msg.sender] = safeSub(balances[msg.sender], value);
-        _totalSupply = safeSub(_totalSupply, value);  
+        totalSupply = safeSub(totalSupply, value);  
         emit Transfer(msg.sender, address(0), value);
         return true;
     }
