@@ -1,5 +1,7 @@
 var TikkunToken = artifacts.require("./TikkunToken.sol");
-var SafeMath = artifacts.require("./TikkunToken.sol");
+var SafeMath = artifacts.require("./SafeMath.sol");
+var Owned = artifacts.require("./Owned.sol");
+var ERC621Interface = artifacts.require("./ERC621Interface.sol");
 
 
 contract('TikkunToken', function(accounts) {
@@ -80,4 +82,26 @@ contract('TikkunToken', function(accounts) {
           console.log(result.logs[0].event)
         })
       });
+
+      it("should calculate interest for accounts[1]", function() {
+        var token;
+        return TikkunToken.deployed().then(function(instance){
+        token = instance;
+        return token.calculateInterest(accounts[1]);
+        }).then(function(result){
+        return token.transferFrom(accounts[0], accounts[1], result.toNumber(), {from: accounts[0]});
+        }).then(function(result){
+        return token.interestRate();
+        }).then(function(result){
+        assert.equal(result.toNumber(), 6, 'interest rate is wrong');
+        }).then(function(result){
+        return token.balanceOf(accounts[1]);
+        }).then(function(result){
+        assert.equal(result.toNumber(), 600082, 'accounts[1] interest is wrong');
+        }).then(function(result){
+        return token.balanceOf(accounts[0]);
+        }).then(function(result){
+        assert.equal(result.toNumber(), 500082, 'accounts[0] interest is wrong');
+    });
 });
+})

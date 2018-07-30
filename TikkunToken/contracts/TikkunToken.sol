@@ -1,4 +1,7 @@
 pragma solidity ^0.4.23;
+import "./SafeMath.sol";
+import "./ERC621Interface.sol";
+import "./Owned.sol";
 
 // ----------------------------------------------------------------------------
 // 'Tikkun' CROWDSALE token contract
@@ -14,47 +17,6 @@ pragma solidity ^0.4.23;
 // (c) by Moritz Neto & Daniel Bar with BokkyPooBah / Bok Consulting Pty Ltd Au 2017. The MIT Licence.
 // ----------------------------------------------------------------------------
 
-
-// ----------------------------------------------------------------------------
-// Safe maths
-// ----------------------------------------------------------------------------
-contract SafeMath {
-    function safeAdd(uint a, uint b) internal pure returns (uint c) {
-        c = a + b;
-        require(c >= a);
-    }
-    function safeSub(uint a, uint b) internal pure returns (uint c) {
-        require(b <= a);
-        c = a - b;
-    }
-    function safeMul(uint a, uint b) internal pure returns (uint c) {
-        c = a * b;
-        require(a == 0 || c / a == b);
-    }
-    function safeDiv(uint a, uint b) internal pure returns (uint c) {
-        require(b > 0);
-        c = a / b;
-    }
-}
-
-
-// ----------------------------------------------------------------------------
-// ERC Token Standard #20 Interface
-// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md
-// ----------------------------------------------------------------------------
-contract ERC621Interface {
-    function totalSupply() public constant returns (uint);
-    function balanceOf(address tokenOwner) public constant returns (uint balance);
-    function allowance(address tokenOwner, address spender) public constant returns (uint remaining);
-    function transfer(address to, uint tokens) public returns (bool success);
-    function approve(address spender, uint tokens) public returns (bool success);
-    function transferFrom(address from, address to, uint tokens) public returns (bool success);
-
-    event Transfer(address indexed from, address indexed to, uint tokens);
-    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);
-}
-
-
 // ----------------------------------------------------------------------------
 // Contract function to receive approval and execute function in one call
 //
@@ -63,37 +25,6 @@ contract ERC621Interface {
 contract ApproveAndCallFallBack {
     function receiveApproval(address from, uint256 tokens, address token, bytes data) public;
 }
-
-
-// ----------------------------------------------------------------------------
-// Owned contract
-// ----------------------------------------------------------------------------
-contract Owned {
-    address public owner;
-    address public newOwner;
-
-    event OwnershipTransferred(address indexed _from, address indexed _to);
-
-    function Owned() public {
-        owner = msg.sender;
-    }
-
-    modifier onlyOwner {
-        require(msg.sender == owner);
-        _;
-    }
-
-    function transferOwnership(address _newOwner) public onlyOwner {
-        newOwner = _newOwner;
-    }
-    function acceptOwnership() public {
-        require(msg.sender == newOwner);
-        emit OwnershipTransferred(owner, newOwner);
-        owner = newOwner;
-        newOwner = address(0);
-    }
-}
-
 
 // ----------------------------------------------------------------------------
 // ERC621 Token, with the addition of symbol, name and decimals and assisted
@@ -104,9 +35,11 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     string public  name;
     uint8 public decimals;
     uint public totalSupply;
+    uint256 public interestRate;
 
     mapping(address => uint) balances;
     mapping(address => mapping(address => uint)) allowed;
+    mapping(address => uint) interestDue;
 
 
     // ------------------------------------------------------------------------
@@ -115,8 +48,10 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     function TikkunToken() public {
         symbol = "TKK";
         name = "Tikkun Token";
-        decimals = 2;
+        decimals = 8;
         totalSupply = 0;
+        interestRate = 6;
+        
     }
 
     // ------------------------------------------------------------------------
@@ -229,6 +164,7 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     }
 
     function decreaseSupply(uint value) public returns (bool) {
+        if (msg.sender != owner) return;
         balances[msg.sender] = safeSub(balances[msg.sender], value);
         totalSupply = safeSub(totalSupply, value);  
         emit Transfer(msg.sender, address(0), value);
@@ -240,5 +176,35 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     // ------------------------------------------------------------------------
     function transferAnyERC621Token(address tokenAddress, uint tokens) public onlyOwner returns (bool success) {
         return ERC621Interface(tokenAddress).transfer(owner, tokens);
+    }
+
+    //---------------------------------------------------------------------------
+    //Calculating the daily interest that needs to be paid to account holder
+    //---------------------------------------------------------------------------
+    function calculateInterest(address to) public returns (uint256 interest){
+        uint256 initBalance = balances[to];
+        uint256 interestPayment = (initBalance*interestRate)/uint256(36500);
+        return interestPayment;
+    }
+
+    function payInterest(address to) public returns (bool success) {
+        if (msg.sender != owner) return;
+        uint256 interestPayment = calculateInterest(to);
+        transferFrom(msg.sender, to, interestPayment);
+        return true;
+    }
+
+    // ------------------------------------------------------------------------
+    // Get the interest due for account `tokenOwner`
+    // ------------------------------------------------------------------------
+    function interestOf(address tokenOwner) public constant returns (uint interest) {
+        return interestDue[tokenOwner];
+    }
+
+    // ------------------------------------------------------------------------
+    // Total supply
+    // ------------------------------------------------------------------------
+    function interestRate() public constant returns (uint) {
+        return interestRate;
     }
 }
