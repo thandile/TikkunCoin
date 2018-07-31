@@ -181,17 +181,11 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     //---------------------------------------------------------------------------
     //Calculating the daily interest that needs to be paid to account holder
     //---------------------------------------------------------------------------
-    function calculateInterest(address to) public returns (uint256 interest){
+    function payInterest(address to) public returns (uint256 interest){
         uint256 initBalance = balances[to];
-        uint256 interestPayment = (initBalance*interestRate)/uint256(36500);
+        uint256 interestPayment = initBalance*(1+interestRate)/uint256(36500);
+        balances[to] = safeAdd(balances[to], interestPayment);
         return interestPayment;
-    }
-
-    function payInterest(address to) public returns (bool success) {
-        if (msg.sender != owner) return;
-        uint256 interestPayment = calculateInterest(to);
-        transferFrom(msg.sender, to, interestPayment);
-        return true;
     }
 
     // ------------------------------------------------------------------------

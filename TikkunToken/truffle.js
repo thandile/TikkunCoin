@@ -19,9 +19,8 @@ module.exports = {
     development: {
         host: "localhost",
         port: 9545,
-        network_id: "*", // Match any network id
-        gas: 4500000,
-        gasPrice: 10000000000
+        network_id: "*" // Match any network id
+      
     },
     ganache: {
         host: "localhost",
