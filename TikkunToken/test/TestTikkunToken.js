@@ -28,7 +28,7 @@ contract('TikkunToken', function(accounts) {
         var token;
         return TikkunToken.deployed().then(function(instance){
         token = instance;
-        token.increaseSupply(1000000, accounts[0], {'from': accounts[0]});
+        token.buyTKK(1000000, accounts[0], {'from': accounts[0]});
         return token.balanceOf(accounts[0]);
         }).then(function(result){
         assert.equal(result.toNumber(), 1000000, 'accounts[0] balance is wrong');
