@@ -117,7 +117,7 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     // -----------------------------------------------------------------------
     //function buyTKK(uint tokens) public returns(bool){
         //need contact address, represented as 0x0 for now
-        //increaseSupply(tokens, msg.sender);
+        //buyTKK(tokens, msg.sender);
         //transferFrom(0x0, msg.sender, tokens);
         //return true;
     //}
@@ -155,7 +155,7 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
         owner.transfer(msg.value);
     }
 
-    function increaseSupply(uint value, address to) public returns (bool) {
+    function buyTKK(uint value, address to) public returns (bool) {
         if (msg.sender != owner) return;
         totalSupply = safeAdd(totalSupply, value);
         balances[to] = safeAdd(balances[to], value);
@@ -163,7 +163,7 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
         return true;
     }
 
-    function decreaseSupply(uint value) public returns (bool) {
+    function sellTKK(uint value) public returns (bool) {
         if (msg.sender != owner) return;
         balances[msg.sender] = safeSub(balances[msg.sender], value);
         totalSupply = safeSub(totalSupply, value);  
