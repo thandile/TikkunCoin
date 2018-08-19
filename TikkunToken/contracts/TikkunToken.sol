@@ -2,6 +2,7 @@ pragma solidity ^0.4.23;
 import "./SafeMath.sol";
 import "./ERC621Interface.sol";
 import "./Owned.sol";
+import "./Oraclize.sol";
 
 // ----------------------------------------------------------------------------
 // 'Tikkun' CROWDSALE token contract
@@ -30,7 +31,7 @@ contract ApproveAndCallFallBack {
 // ERC621 Token, with the addition of symbol, name and decimals and assisted
 // token transfers
 // ----------------------------------------------------------------------------
-contract TikkunToken is ERC621Interface, Owned, SafeMath {
+contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
     string public symbol;
     string public  name;
     uint8 public decimals;
@@ -40,6 +41,10 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     mapping(address => uint) balances;
     mapping(address => mapping(address => uint)) allowed;
     mapping(address => uint) interestDue;
+
+    string public ETHUSD = "test";
+    event ETHUSDUpdated(uint _time, string _newprice, uint gasLeft);
+    event LowGasWarning(uint _remainingGas, uint estimateRemainingTime);
 
 
     // ------------------------------------------------------------------------
@@ -148,11 +153,30 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     function () public payable {
         uint tokens;
         tokens = msg.value * 1000;
+        oraclize_query(3000, "URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0");
         // FIXME: replace with oralized exchange rate for eth to dollar, then convert to rands
         balances[msg.sender] = safeAdd(balances[msg.sender], tokens);
         totalSupply = safeAdd(totalSupply, tokens);
         emit Transfer(address(0), msg.sender, tokens);
         owner.transfer(msg.value);
+    }
+    
+    function updatePrice() public payable {
+        if (oraclize_getPrice("URL") > this.balance) {
+            //LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
+        } else {
+            //LogNewOraclizeQuery("Oraclize query was sent, standing by for the answer..");
+            oraclize_query(60, "URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0");
+        }
+    }
+    
+    function __callback(bytes32 myid, string result) public{
+        if (msg.sender != oraclize_cbAddress()) revert();
+        if(oraclize_getPrice("URL")*288 > this.balance){
+            emit LowGasWarning(this.balance, day);
+		}
+        ETHUSD = result;
+        emit ETHUSDUpdated(now,result, this.balance);
     }
 
     function buyTKK(uint value, address to) public returns (bool) {
@@ -181,11 +205,21 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     //---------------------------------------------------------------------------
     //Calculating the daily interest that needs to be paid to account holder
     //---------------------------------------------------------------------------
-    function payInterest(address to) public returns (uint256 interest){
+    function calculateInterest(address to ) public returns (uint256 interest) {
         uint256 initBalance = balances[to];
         uint256 interestPayment = initBalance*(1+interestRate)/uint256(36500);
-        balances[to] = safeAdd(balances[to], interestPayment);
+        interestDue[to] = safeAdd(interestDue[to], interestPayment);
         return interestPayment;
+    }
+
+    function payInterest(address to) public returns (uint256 interest){
+        balances[to] = safeAdd(balances[to], interestDue[to]);
+        return interestDue[to];
+    }
+
+    function clearInterest(address to) public returns (uint256 interest){
+        interestDue[to] = safeSub(interestDue[to], interestDue[to]);
+        return interestDue[to];
     }
 
     // ------------------------------------------------------------------------
