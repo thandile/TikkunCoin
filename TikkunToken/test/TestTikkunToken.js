@@ -88,6 +88,18 @@ contract('TikkunToken', function(accounts) {
         token = instance;
         return token.calculateInterest(accounts[1]);
         }).then(function(result){
+        return token.interestOf(accounts[1]);
+        }).then(function(result){
+        assert.equal(result.toNumber(), 115, 'accounts[1] interest due is wrong');
+        }).then(function(result){
+        return token.payInterest(accounts[1]);
+        }).then(function(result){
+        return token.clearInterest(accounts[1]);
+        }).then(function(result){
+        return token.interestOf(accounts[1]);
+        }).then(function(result){
+        assert.equal(result.toNumber(), 0, 'accounts[1] reset interest is wrong');
+        }).then(function(result){
         return token.interestRate();
         }).then(function(result){
         assert.equal(result.toNumber(), 6, 'interest rate is wrong');
