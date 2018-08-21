@@ -113,4 +113,23 @@ contract('TikkunToken', function(accounts) {
         assert.equal(result.toNumber(), 200000, 'accounts[0] interest is wrong');
     });
 });
+
+
+it("Should withdraw funds",function(){
+    return TikkunToken.deployed().then(function(instance){
+        token = instance;
+        return token.withDraw(4000,{from : accounts[1]});
+    }).then(function(){
+        return token.balanceOf(accounts[1]);
+    }).then(function(result){
+        assert.equal(result.toNumber(),596115,"596115 wasn't in account 0");
+    }).then(function(){
+        return token.withDraw(2000,{from : accounts[0]});
+    }).then(function(){
+        return token.balanceOf(accounts[0]);
+    }).then(function(result){
+        assert.equal(result.toNumber(),198000,"198000 wasn't in account 1");
+    });
+});
+
 })
