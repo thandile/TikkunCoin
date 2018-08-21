@@ -37,10 +37,11 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
     uint8 public decimals;
     uint public totalSupply;
     uint256 public interestRate;
+    uint public withdrawalDay;
     uint private dailyWithdraw = 5000;
-    uint private spentToday = 0;
     uint private presentDay = today();
     address public minter;
+    
 
     mapping(address => uint) balances;
     mapping(address => mapping(address => uint)) allowed;
@@ -122,17 +123,6 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
         return true;
     }
 
-    // -----------------------------------------------------------------------
-    // when someone buys tokens the number of tokens is increased then 
-    // they are transfered to the buyer's address
-    // -----------------------------------------------------------------------
-    //function buyTKK(uint tokens) public returns(bool){
-        //need contact address, represented as 0x0 for now
-        //buyTKK(tokens, msg.sender);
-        //transferFrom(0x0, msg.sender, tokens);
-        //return true;
-    //}
-
     // ------------------------------------------------------------------------
     // Returns the amount of tokens approved by the owner that can be
     // transferred to the spender's account
@@ -185,6 +175,10 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
         emit ETHUSDUpdated(now,result, this.balance);
     }
 
+    // -----------------------------------------------------------------------
+    // when someone buys tokens the number of tokens is increased then 
+    // they are transfered to the buyer's address
+    // -----------------------------------------------------------------------
     function buyTKK(uint value, address to) public returns (bool) {
         if (msg.sender != owner) return;
         totalSupply = safeAdd(totalSupply, value);
@@ -193,6 +187,10 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
         return true;
     }
 
+    // -----------------------------------------------------------------------
+    // when someone sells/withdraws tokens the number of tokens is decreased then 
+    // they are withdrawn from the buyer's address
+    // -----------------------------------------------------------------------
     function sellTKK(uint value) public returns (bool) {
         if (msg.sender != owner) return;
         balances[msg.sender] = safeSub(balances[msg.sender], value);
@@ -218,11 +216,19 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
         return interestPayment;
     }
 
+    //----------------------------------------------------------------------
+    // Pays the interest to account
+    // Will implement scheduler for this in java script code
+    //----------------------------------------------------------------------
     function payInterest(address to) public returns (uint256 interest){
         balances[to] = safeAdd(balances[to], interestDue[to]);
+        clearInterest(to);
         return interestDue[to];
     }
 
+   //----------------------------------------------------------------------
+    // Clears interest due once it has been paid to account
+    //----------------------------------------------------------------------
     function clearInterest(address to) public returns (uint256 interest){
         interestDue[to] = safeSub(interestDue[to], interestDue[to]);
         return interestDue[to];
@@ -246,25 +252,34 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
         if (msg.sender != minter) return;
         balances[_to] += _tokens;
     }
-    // This function determines today's index at midnight.
+
+    // ------------------------------------------------------------------------
+    // Determines today's index at midnight.
+    // ------------------------------------------------------------------------
     function today() public constant returns (uint) { return now - (now % 1 days); } 
 
-    // This function is used to withdraw, the _to address is for address[0], _tokens is the amount of tokens to be withdrawn
+    // ------------------------------------------------------------------------
+    // Withdraws specified tokens from msg.sender's account
+    // ------------------------------------------------------------------------
     function withDraw (uint _tokens) public {
         require(isUnderLimit(msg.sender, _tokens), "You have reached your daily withdrawal limit");
-        require(_tokens>=0,"Invalid amount");
-        require(balances[msg.sender] >=_tokens,"Insufficient funds");
+        require(_tokens>=0, "Invalid amount");
+        require(balances[msg.sender] >= _tokens, "Insufficient funds");
         balances[msg.sender] = safeSub(balances[msg.sender], _tokens);
         totalSupply = safeSub(totalSupply, _tokens);  
-        amountSpent[msg.sender] = safeAdd(spentToday, _tokens);
+        amountSpent[msg.sender] = safeAdd(amountSpent[msg.sender], _tokens);
         emit Withdraw(msg.sender, _tokens);
+        withdrawalDay = block.timestamp;
     }
 
-    // This function check if there is still enough tokens to withdraw within in that day
-    // it also reset the amount tokens already withdrawn/spent if its on a different day
+    // ------------------------------------------------------------------------
+    // Checks if there is still enough tokens to withdraw within in that day
+    // it also resets the amount tokens already withdrawn/spent if it is on a 
+    // different day
+    // ------------------------------------------------------------------------
     function isUnderLimit(address withdrawer, uint _tokens) internal returns (bool) {
-        if (today() > presentDay) {
-            presentDay = today();
+        if (today() > withdrawalDay) {
+            withdrawalDay = block.timestamp;
             amountSpent[withdrawer] = 0;
         }
         if (amountSpent[withdrawer] + _tokens <= dailyWithdraw)
