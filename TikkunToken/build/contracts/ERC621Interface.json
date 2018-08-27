@@ -180,9 +180,9 @@
   "sourceMap": "",
   "deployedSourceMap": "",
   "source": "pragma solidity ^0.4.23;\n\n// ----------------------------------------------------------------------------\n// ERC Token Standard #621 Interface\n// https://github.com/ethereum/EIPs/blob/master/EIPS/eip-20-token-standard.md\n// ----------------------------------------------------------------------------\ncontract ERC621Interface {\n    function totalSupply() public constant returns (uint);\n    function balanceOf(address tokenOwner) public constant returns (uint balance);\n    function allowance(address tokenOwner, address spender) public constant returns (uint remaining);\n    function transfer(address to, uint tokens) public returns (bool success);\n    function approve(address spender, uint tokens) public returns (bool success);\n    function transferFrom(address from, address to, uint tokens) public returns (bool success);\n\n    event Transfer(address indexed from, address indexed to, uint tokens);\n    event Approval(address indexed tokenOwner, address indexed spender, uint tokens);\n}\n",
-  "sourcePath": "/home/thandile/TikkunCoin/TikkunToken/contracts/ERC621Interface.sol",
+  "sourcePath": "/Users/thandilexiphu/TikkunCoin/TikkunToken/contracts/ERC621Interface.sol",
   "ast": {
-    "absolutePath": "/home/thandile/TikkunCoin/TikkunToken/contracts/ERC621Interface.sol",
+    "absolutePath": "/Users/thandilexiphu/TikkunCoin/TikkunToken/contracts/ERC621Interface.sol",
     "exportedSymbols": {
       "ERC621Interface": [
         68
@@ -1016,7 +1016,7 @@
     "src": "0:992:0"
   },
   "legacyAST": {
-    "absolutePath": "/home/thandile/TikkunCoin/TikkunToken/contracts/ERC621Interface.sol",
+    "absolutePath": "/Users/thandilexiphu/TikkunCoin/TikkunToken/contracts/ERC621Interface.sol",
     "exportedSymbols": {
       "ERC621Interface": [
         68
@@ -1855,5 +1855,5 @@
   },
   "networks": {},
   "schemaVersion": "2.0.1",
-  "updatedAt": "2018-08-19T10:44:37.738Z"
+  "updatedAt": "2018-08-27T19:05:38.686Z"
 }
