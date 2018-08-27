@@ -33,14 +33,11 @@ App = {
             // set the provider for our contract
             App.contracts.TikkunToken.setProvider(App.web3Provider);
             // retrieve zombies from the contract
-        
+            App.calculateInterest()
             //update account info
-            App.displayAccountInfo();
-        
-            // show zombies owned by current user
-            return App.reloadZombies();
+            return App.displayAccountInfo();
         });
-     },
+      },
 
       displayAccountInfo: function () {
             // get current account information
@@ -48,55 +45,135 @@ App = {
             // if there is no error
             if (err === null) {
             //set the App object's account variable
-            App.account = account;
-            // insert the account address in the p-tag with id='account'
-            $("#account").text(account);
-            // retrieve the balance corresponding to that account
-            web3.eth.getBalance(account, function (err, balance) {
-                  // if there is no error
-                  if (err === null) {
-                        // insert the balance in the p-tag with id='accountBalance'
-                        $("#accountBalance").text(web3.fromWei(balance, "ether") + " TKK");
-                  }
-            });
+                  App.account = account;
+                  // insert the account address in the p-tag with id='account'
+                  $("#account").text(account);
             }
-      });
-      },
-
-      reloadZombies: function () {
+            });
             
+            // retrieve the balance corresponding to that account
+            App.contracts.TikkunToken.deployed().then(function (instance) {
+             // insert the balance in the p-tag with id='accountBalance'
+            return instance.balanceOf(App.account);
+            }).then(function(balance){
+                  
+                  $("#accountBalance").text(balance + " TKK");
+            });
+      },   
+      
+      buyTKK: function() {
+            var _amt_buying = $("#amtbuying").val();
+            // if the value was not provided
+            if (_amt_buying.trim() == '') {
+                  // we cannot but tokens
+                  return false;
+            }
+             // get the instance of the ZombieOwnership contract
+            App.contracts.TikkunToken.deployed().then(function (instance) {
+                  // call the buyTKK function, 
+                  // passing the amount being bought and the transaction parameters
+                  return instance.mint(_amt_buying, App.account, {from:App.account});
+                  }).then(function(result){
+                        console.log(result.logs);
+                  });
+            App.contracts.TikkunToken.deployed().then(function (instance) {
+                  // call the buyTKK function, 
+                  // passing the amount being bought and the transaction parameters
+                  return instance.totalSupply();
+                  }).then(function(result){
+                        console.log(result);
+                  });
+                  // log the error if there is one
       },
 
-      buyTKK: function () {
-            // get information from the modal
-            var _zombie_name = $('#zombie_name').val();
-        
-            // if the name was not provided
-            if (_zombie_name.trim() == '') {
-                    // we cannot create a zombie
-                    return false;
+      redeemRands: function() {
+            var _amt_redeeming = $("#amtRedeemed").val();
+            // if the value was not provided
+            if (_amt_redeeming.trim() == '') {
+                  // we cannot but tokens
+                  return false;
             }
-        
-            // get the instance of the ZombieOwnership contract
+             // get the instance of the ZombieOwnership contract
             App.contracts.TikkunToken.deployed().then(function (instance) {
-                    // call the createRandomZombie function, 
-                    // passing the zombie name and the transaction parameters
-                    instance.transfer(_zombie_name, 5, {
-                        from: App.account,
-                        gas: 500000
-                    });
-            // log the error if there is one
-            }).then(function () {
-        
-            }).catch(function (error) {
-                    console.log(error);
-            });
-        },
+                  // call the buyTKK function, 
+                  // passing the amount being bought and the transaction parameters
+                  return instance.withDraw(_amt_redeeming, App.account, {from:App.account, gas: 6000000});
+                  }).then(function(result){
+                        console.log(result.logs);
+                  }).catch(e => {
+                        console.log(e);
+                  });
+            App.contracts.TikkunToken.deployed().then(function (instance) {
+                  // call the buyTKK function, 
+                  // passing the amount being bought and the transaction parameters
+                  return instance.totalSupply();
+                  }).then(function(result){
+                        console.log(result);
+                  });
+                  // log the error if there is one
+      },
+
+      transfer: function() {
+            var _receiver_address= $("#receiverAddress").val();
+            var _amt_transfering = $("#amtTransfering").val();
+            // if the value was not provided
+            if (_amt_transfering.trim() == '') {
+                  // we cannot transfer tokens
+                  return false;
+            }
+            if (_receiver_address.trim() == '') {
+                  // we cannot transfer tokens
+                  return false;
+            }
+            App.contracts.TikkunToken.deployed().then(function (instance) {
+                  // call the buyTKK function, 
+                  // passing the amount being bought and the transaction parameters
+                  return instance.transfer(_receiver_address, _amt_transfering, {from:App.account, gas: 6000000});
+                  }).then(function(result){
+                        console.log(result.logs);
+                  }).catch(e => {
+                        console.log(e);
+                  });
+      },
+
+      calculateInterest: function() {
+            var now = new Date();
+            var millisTill12 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 24, 0, 0, 0) - now;
+            if (millisTill12 < 0) {
+                  millisTill12 += 86400000; // it's after 12am, try 12am tomorrow.
+             }
+             setTimeout(function(){ 
+                   App.contracts.TikkunToken.deployed().then(function (instance) {
+                  // call the buyTKK function, 
+                  // passing the amount being bought and the transaction parameters
+                  return instance.calculateInterest(App.account, {from:App.account});
+                  }).then(function(result){
+                        App.payInterest();
+                        console.log(result.logs);
+                  });},
+                  millisTill12);
+      },
+
+      payInterest: function() {
+            var now = new Date();
+            if (now.getDate() == 1) {
+                  App.contracts.TikkunToken.deployed().then(function (instance) {
+                  // call the buyTKK function, 
+                  // passing the amount being bought and the transaction parameters
+                  return instance.payInterest(App.account, {from:App.account});
+                  }).then(function(result){
+                        console.log(result.logs);
+                  });
+                  App.contracts.TikkunToken.deployed().then(function (instance) {
+                        // call the buyTKK function, 
+                        // passing the amount being bought and the transaction parameters
+                        return instance.clearInterest(App.account);
+                        }).then(function(result){
+                              console.log(result.logs);
+                        });
+            }
+      },
 };
-
-
-
-
 
 $(function() {
      $(window).load(function() {

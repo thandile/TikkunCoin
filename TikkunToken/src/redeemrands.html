@@ -9,7 +9,7 @@
     <title>Redeem Rands</title>
     <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <!-- Custom styles for this template -->
     <link href="form-validation.css" rel="stylesheet">
@@ -18,12 +18,31 @@
     <div class="jumbotron">
       <div class="container" allign = "text-center">
         <div class="py-5 text-center">
-          <a href="../TikkunMain.html"><img class="d-block mx-auto mb-4 minipic" src="Tikkunlogo.png" alt="" width="72" height="72"></a>
+          <a href="TikkunMain.html"><img class="d-block mx-auto mb-4 minipic" src="Tikkunlogo.png" alt="" width="72" height="72"></a>
           <h2>Redeem Rands</h2>
           <p class="lead">Enter Bank Account details below and convert your Tikkun back into Rands.<br> Any withdrawals are subject to withdrawal limits of R2000 daily. <br> You will receive your redeemed money in 3 workind days.</p>
         </div>
       </div>
     </div>
+    <div class="col-md-4 order-md-2 mb-4">
+        <h4 class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-muted">Your account</span>
+        </h4>
+          <ul class="list-group mb-3">
+            <li class="list-group-item d-flex justify-content-between lh-condensed">
+                <div>
+                  <div span class="text-muted">Account: </span>
+                  <p id="account" class="text-muted"></p></div>
+                </div>
+              </li>
+              <li class="list-group-item d-flex justify-content-between lh-condensed">  
+                <div>   
+                  <div span class="text-muted">Balance: </span>
+                  <p id="accountBalance" class="text-muted"></p></div>
+                </div>
+              </li>
+           </ul>
+      </div>
     <div class="col-md-8 order-md-1">
       <h4 class="mb-3">Billing address</h4>
       <form class="needs-validation" novalidate>
@@ -74,7 +93,7 @@
       <form>
         <div class="col-md-5 mb-5">
           <label>Amount of Rands to Redeem</label>
-          <input type="text" class="form-control" id="amtbuying" placeholder="100" required>
+          <input type="text" class="form-control" id="amtRedeemed" placeholder="100" required>
           <div class="invalid-feedback">
             Put the Rand Amount.
           </div>
@@ -114,18 +133,18 @@
             </div>
           </div>
           <hr class="mb-4">
-          <button class="btn btn-lg btn-block" type="submit">Continue to Redemption</button>
+          <button class="btn btn-lg btn-block" redeemRands() type="submit">Continue to Redemption</button>
         </div>
       </form>
     </body>
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
-    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>')</script>
-    <script src="../../assets/js/vendor/popper.min.js"></script>
-    <script src="../../dist/js/bootstrap.min.js"></script>
-    <script src="../../assets/js/vendor/holder.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/web3.min.js"></script>
+    <script src="js/truffle-contract.js"></script>
+    <script src="js/app.js"></script>
     <script>
     // Example starter JavaScript for disabling form submissions if there are invalid fields
     (function() {
