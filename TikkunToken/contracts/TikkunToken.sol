@@ -2,7 +2,6 @@ pragma solidity ^0.4.23;
 import "./SafeMath.sol";
 import "./ERC621Interface.sol";
 import "./Owned.sol";
-import "./Oraclize.sol";
 
 // ----------------------------------------------------------------------------
 // 'Tikkun' CROWDSALE token contract
@@ -31,7 +30,7 @@ contract ApproveAndCallFallBack {
 // ERC621 Token, with the addition of symbol, name and decimals and assisted
 // token transfers
 // ----------------------------------------------------------------------------
-contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
+contract TikkunToken is ERC621Interface, Owned, SafeMath {
     string public symbol;
     string public  name;
     uint8 public decimals;
@@ -48,11 +47,15 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
     mapping(address => uint) interestDue;
     mapping(address => uint) amountSpent;
 
-    string public ETHUSD = "test";
-    event ETHUSDUpdated(uint _time, string _newprice, uint gasLeft);
-    event LowGasWarning(uint _remainingGas, uint estimateRemainingTime);
     event Withdraw(address _withdrawer, uint _amount);
-
+    event LogBuyTikkun(address buyer, uint256 amount);
+    event LogTotalSupplyIncreased(uint256 totalSupply);
+    event LogBalanceIncreased(address buyer, uint256 balances);
+    event InterestPaid(address to, uint256 interestDue);
+    event InterestCalculated(address to, uint256 interestPayment);
+    event LimtBreach(address owner, uint256 amount);
+    event InsufficientFunds(address owner, uint256 amount);
+    event InvalidAmount(address owner, uint256 amount);
 
     // ------------------------------------------------------------------------
     // Constructor
@@ -69,7 +72,7 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
     // ------------------------------------------------------------------------
     // Total supply
     // ------------------------------------------------------------------------
-    function totalSupply() public constant returns (uint) {
+    function totalSupply() public view returns (uint totalSupply) {
         return totalSupply - balances[address(0)];
     }
 
@@ -143,47 +146,27 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
         return true;
     }
 
-    // ------------------------------------------------------------------------
-    // 1000 TKK Tokens per 1 ETH
-    // ------------------------------------------------------------------------
     function () public payable {
         uint tokens;
-        tokens = msg.value * 1000;
-        oraclize_query(3000, "URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0");
-        // FIXME: replace with oralized exchange rate for eth to dollar, then convert to rands
+        tokens = msg.value;
         balances[msg.sender] = safeAdd(balances[msg.sender], tokens);
         totalSupply = safeAdd(totalSupply, tokens);
         emit Transfer(address(0), msg.sender, tokens);
         owner.transfer(msg.value);
     }
     
-    function updatePrice() public payable {
-        if (oraclize_getPrice("URL") > this.balance) {
-            //LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
-        } else {
-            //LogNewOraclizeQuery("Oraclize query was sent, standing by for the answer..");
-            oraclize_query(60, "URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0");
-        }
-    }
-    
-    function __callback(bytes32 myid, string result) public{
-        if (msg.sender != oraclize_cbAddress()) revert();
-        if(oraclize_getPrice("URL")*288 > this.balance){
-            emit LowGasWarning(this.balance, day);
-		}
-        ETHUSD = result;
-        emit ETHUSDUpdated(now,result, this.balance);
-    }
-
     // -----------------------------------------------------------------------
     // when someone buys tokens the number of tokens is increased then 
     // they are transfered to the buyer's address
     // -----------------------------------------------------------------------
-    function buyTKK(uint value, address to) public returns (bool) {
-        if (msg.sender != owner) return;
+    function mint(uint value, address to) public returns (bool success) {
+        // if (msg.sender != owner) return;
+        //emit LogBuyTikkun(to, value);
         totalSupply = safeAdd(totalSupply, value);
         balances[to] = safeAdd(balances[to], value);
-        emit Transfer(address(0), to, value);
+        emit LogBuyTikkun(to, value);
+        emit LogTotalSupplyIncreased(totalSupply);
+        emit LogBalanceIncreased(to, balances[to]);
         return true;
     }
 
@@ -191,7 +174,7 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
     // when someone sells/withdraws tokens the number of tokens is decreased then 
     // they are withdrawn from the buyer's address
     // -----------------------------------------------------------------------
-    function sellTKK(uint value) public returns (bool) {
+    function sellTKK(uint value) public returns (bool success) {
         if (msg.sender != owner) return;
         balances[msg.sender] = safeSub(balances[msg.sender], value);
         totalSupply = safeSub(totalSupply, value);  
@@ -213,6 +196,7 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
         uint256 initBalance = balances[to];
         uint256 interestPayment = initBalance*(1+interestRate)/uint256(36500);
         interestDue[to] = safeAdd(interestDue[to], interestPayment);
+        emit InterestCalculated(to, interestPayment);
         return interestPayment;
     }
 
@@ -223,6 +207,7 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
     function payInterest(address to) public returns (uint256 interest){
         balances[to] = safeAdd(balances[to], interestDue[to]);
         clearInterest(to);
+        emit InterestPaid(to, interestDue[to]);
         return interestDue[to];
     }
 
@@ -248,11 +233,6 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
         return interestRate;
     }
 
-    function mint(address _to, uint _tokens) external {
-        if (msg.sender != minter) return;
-        balances[_to] += _tokens;
-    }
-
     // ------------------------------------------------------------------------
     // Determines today's index at midnight.
     // ------------------------------------------------------------------------
@@ -261,15 +241,19 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
     // ------------------------------------------------------------------------
     // Withdraws specified tokens from msg.sender's account
     // ------------------------------------------------------------------------
-    function withDraw (uint _tokens) public {
-        require(isUnderLimit(msg.sender, _tokens), "You have reached your daily withdrawal limit");
+    function withDraw (address owner, uint _tokens) public returns (bool success){
+        require(isUnderLimit(owner, _tokens), "You have reached your daily withdrawal limit");
+        emit LimtBreach(owner, _tokens);
         require(_tokens>=0, "Invalid amount");
-        require(balances[msg.sender] >= _tokens, "Insufficient funds");
-        balances[msg.sender] = safeSub(balances[msg.sender], _tokens);
+        emit InvalidAmount(owner, _tokens);
+        require(balances[owner] >= _tokens, "Insufficient funds");
+        emit InsufficientFunds(owner, _tokens);
+        balances[owner] = safeSub(balances[owner], _tokens);
         totalSupply = safeSub(totalSupply, _tokens);  
-        amountSpent[msg.sender] = safeAdd(amountSpent[msg.sender], _tokens);
-        emit Withdraw(msg.sender, _tokens);
+        amountSpent[owner] = safeAdd(amountSpent[owner], _tokens);
+        emit Withdraw(owner, _tokens);
         withdrawalDay = block.timestamp;
+        return true;
     }
 
     // ------------------------------------------------------------------------
