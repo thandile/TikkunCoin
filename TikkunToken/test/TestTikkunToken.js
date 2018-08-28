@@ -28,7 +28,7 @@ contract('TikkunToken', function(accounts) {
         var token;
         return TikkunToken.deployed().then(function(instance){
         token = instance;
-        token.increaseSupply(1000000, accounts[0], {'from': accounts[0]});
+        token.buyTKK(1000000, accounts[0], {'from': accounts[0]});
         return token.balanceOf(accounts[0]);
         }).then(function(result){
         assert.equal(result.toNumber(), 1000000, 'accounts[0] balance is wrong');
@@ -88,6 +88,18 @@ contract('TikkunToken', function(accounts) {
         token = instance;
         return token.calculateInterest(accounts[1]);
         }).then(function(result){
+        return token.interestOf(accounts[1]);
+        }).then(function(result){
+        assert.equal(result.toNumber(), 115, 'accounts[1] interest due is wrong');
+        }).then(function(result){
+        return token.payInterest(accounts[1]);
+        }).then(function(result){
+        return token.clearInterest(accounts[1]);
+        }).then(function(result){
+        return token.interestOf(accounts[1]);
+        }).then(function(result){
+        assert.equal(result.toNumber(), 0, 'accounts[1] reset interest is wrong');
+        }).then(function(result){
         return token.interestRate();
         }).then(function(result){
         assert.equal(result.toNumber(), 6, 'interest rate is wrong');
@@ -99,6 +111,46 @@ contract('TikkunToken', function(accounts) {
         return token.balanceOf(accounts[0]);
         }).then(function(result){
         assert.equal(result.toNumber(), 200000, 'accounts[0] interest is wrong');
+        });
     });
-});
+
+
+    it("Should withdraw funds",function(){
+        return TikkunToken.deployed().then(function(instance){
+            token = instance;
+            return token.withDraw(4000,{from : accounts[1]});
+        }).then(function(){
+            return token.balanceOf(accounts[1]);
+        }).then(function(result){
+            assert.equal(result.toNumber(),596115,"596115 wasn't in account 0");
+        }).then(function(){
+            return token.withDraw(2000,{from : accounts[0]});
+        }).then(function(){
+            return token.balanceOf(accounts[0]);
+        }).then(function(result){
+            assert.equal(result.toNumber(),198000,"198000 wasn't in account 1");
+        });
+    });
+
+    it("It should update the interest rate",function(){
+        var token;
+        return TikkunToken.deployed().then(function(instance){
+            token = instance
+            return token.newInterestRate(12);
+        }).then(function(result){
+            assert.equal(result.toNumber(), 12, '12 is not the new interest rate');
+        });
+    });
+
+    it("It should change the marketCap",function(){
+        return TikkunToken.deployed().then(function(instance){
+            token = instance
+            return token.newMarketCap(200000000);
+        }).then(function(result){
+            assert.equal(result.toNumber(),200000000,"200000000 is not the market Cap")
+        });
+    });
+
+
+
 })
