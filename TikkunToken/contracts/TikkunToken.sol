@@ -2,6 +2,7 @@ pragma solidity ^0.4.23;
 import "./SafeMath.sol";
 import "./ERC621Interface.sol";
 import "./Owned.sol";
+import "./Oraclize.sol";
 
 // ----------------------------------------------------------------------------
 // 'Tikkun' CROWDSALE token contract
@@ -30,16 +31,29 @@ contract ApproveAndCallFallBack {
 // ERC621 Token, with the addition of symbol, name and decimals and assisted
 // token transfers
 // ----------------------------------------------------------------------------
-contract TikkunToken is ERC621Interface, Owned, SafeMath {
+contract TikkunToken is ERC621Interface, Owned, SafeMath, usingOraclize {
     string public symbol;
     string public  name;
     uint8 public decimals;
     uint public totalSupply;
+    uint public totalTokens;
+    uint public marketCap;
     uint256 public interestRate;
+    uint public withdrawalDay;
+    uint private dailyWithdraw = 5000;
+    uint private presentDay = today();
+    address public minter;
+    
 
     mapping(address => uint) balances;
     mapping(address => mapping(address => uint)) allowed;
     mapping(address => uint) interestDue;
+    mapping(address => uint) amountSpent;
+
+    string public ETHUSD = "test";
+    event ETHUSDUpdated(uint _time, string _newprice, uint gasLeft);
+    event LowGasWarning(uint _remainingGas, uint estimateRemainingTime);
+    event Withdraw(address _withdrawer, uint _amount);
 
 
     // ------------------------------------------------------------------------
@@ -51,6 +65,8 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
         decimals = 8;
         totalSupply = 0;
         interestRate = 6;
+        totalTokens = 0;
+        marketCap = 1000000000;
         
     }
 
@@ -59,6 +75,14 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     // ------------------------------------------------------------------------
     function totalSupply() public constant returns (uint) {
         return totalSupply - balances[address(0)];
+    }
+    // This function is used to change the market cap
+    function newMarketCap(uint _marketcap) public constant returns (uint) {
+        return marketCap = _marketcap;
+    }
+
+    function totalTokens() public constant returns (uint) {
+        return totalTokens;
     }
 
     // ------------------------------------------------------------------------
@@ -111,17 +135,6 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
         return true;
     }
 
-    // -----------------------------------------------------------------------
-    // when someone buys tokens the number of tokens is increased then 
-    // they are transfered to the buyer's address
-    // -----------------------------------------------------------------------
-    //function buyTKK(uint tokens) public returns(bool){
-        //need contact address, represented as 0x0 for now
-        //increaseSupply(tokens, msg.sender);
-        //transferFrom(0x0, msg.sender, tokens);
-        //return true;
-    //}
-
     // ------------------------------------------------------------------------
     // Returns the amount of tokens approved by the owner that can be
     // transferred to the spender's account
@@ -146,26 +159,58 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     // 1000 TKK Tokens per 1 ETH
     // ------------------------------------------------------------------------
     function () public payable {
+        require(totalSupply < marketCap,"Supply has reached market cap");
         uint tokens;
         tokens = msg.value * 1000;
+        oraclize_query(3000, "URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0");
         // FIXME: replace with oralized exchange rate for eth to dollar, then convert to rands
         balances[msg.sender] = safeAdd(balances[msg.sender], tokens);
         totalSupply = safeAdd(totalSupply, tokens);
         emit Transfer(address(0), msg.sender, tokens);
         owner.transfer(msg.value);
     }
+    
+    function updatePrice() public payable {
+        if (oraclize_getPrice("URL") > this.balance) {
+            //LogNewOraclizeQuery("Oraclize query was NOT sent, please add some ETH to cover for the query fee");
+        } else {
+            //LogNewOraclizeQuery("Oraclize query was sent, standing by for the answer..");
+            oraclize_query(60, "URL", "json(https://api.kraken.com/0/public/Ticker?pair=ETHUSD).result.XETHZUSD.c.0");
+        }
+    }
+    
+    function __callback(bytes32 myid, string result) public{
+        if (msg.sender != oraclize_cbAddress()) revert();
+        if(oraclize_getPrice("URL")*288 > this.balance){
+            emit LowGasWarning(this.balance, day);
+		}
+        ETHUSD = result;
+        emit ETHUSDUpdated(now,result, this.balance);
+    }
 
-    function increaseSupply(uint value, address to) public returns (bool) {
+    // -----------------------------------------------------------------------
+    // when someone buys tokens the number of tokens is increased then 
+    // they are transfered to the buyer's address
+    // -----------------------------------------------------------------------
+    function buyTKK(uint value, address to) public returns (bool) {
         if (msg.sender != owner) return;
+        require(totalSupply < marketCap, "Supply has reached market cap");
         totalSupply = safeAdd(totalSupply, value);
+        totalTokens = safeAdd(totalTokens, value);
         balances[to] = safeAdd(balances[to], value);
         emit Transfer(address(0), to, value);
         return true;
     }
 
-    function decreaseSupply(uint value) public returns (bool) {
+    // -----------------------------------------------------------------------
+    // when someone sells/withdraws tokens the number of tokens is decreased then 
+    // they are withdrawn from the buyer's address
+    // -----------------------------------------------------------------------
+    function sellTKK(uint value) public returns (bool) {
         if (msg.sender != owner) return;
+        require(totalSupply < marketCap, "Supply has reached market cap");
         balances[msg.sender] = safeSub(balances[msg.sender], value);
+        totalTokens = safeSub(totalTokens, value);
         totalSupply = safeSub(totalSupply, value);  
         emit Transfer(msg.sender, address(0), value);
         return true;
@@ -181,11 +226,29 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     //---------------------------------------------------------------------------
     //Calculating the daily interest that needs to be paid to account holder
     //---------------------------------------------------------------------------
-    function payInterest(address to) public returns (uint256 interest){
+    function calculateInterest(address to ) public returns (uint256 interest) {
         uint256 initBalance = balances[to];
         uint256 interestPayment = initBalance*(1+interestRate)/uint256(36500);
-        balances[to] = safeAdd(balances[to], interestPayment);
+        interestDue[to] = safeAdd(interestDue[to], interestPayment);
         return interestPayment;
+    }
+
+    //----------------------------------------------------------------------
+    // Pays the interest to account
+    // Will implement scheduler for this in java script code
+    //----------------------------------------------------------------------
+    function payInterest(address to) public returns (uint256 interest) {
+        balances[to] = safeAdd(balances[to], interestDue[to]);
+        clearInterest(to);
+        return interestDue[to];
+    }
+
+   //----------------------------------------------------------------------
+    // Clears interest due once it has been paid to account
+    //----------------------------------------------------------------------
+    function clearInterest(address to) public returns (uint256 interest){
+        interestDue[to] = safeSub(interestDue[to], interestDue[to]);
+        return interestDue[to];
     }
 
     // ------------------------------------------------------------------------
@@ -196,9 +259,49 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     }
 
     // ------------------------------------------------------------------------
-    // Total supply
+    // Interest rate
     // ------------------------------------------------------------------------
-    function interestRate() public constant returns (uint) {
-        return interestRate;
+    function newInterestRate( uint _interest) public constant returns (uint interest) {
+        return interestRate = _interest;
+    }
+
+    function mint(address _to, uint _tokens) external {
+        if (msg.sender != minter) return;
+        balances[_to] += _tokens;
+        totalTokens = safeSub(totalTokens, _tokens);
+    }
+
+    // ------------------------------------------------------------------------
+    // Determines today's index at midnight.
+    // ------------------------------------------------------------------------
+    function today() public constant returns (uint) { return now - (now % 1 days); } 
+
+    // ------------------------------------------------------------------------
+    // Withdraws specified tokens from msg.sender's account
+    // ------------------------------------------------------------------------
+    function withDraw (uint _tokens) public {
+        require(isUnderLimit(msg.sender, _tokens), "You have reached your daily withdrawal limit");
+        require(_tokens>=0, "Invalid amount");
+        require(balances[msg.sender] >= _tokens, "Insufficient funds");
+        balances[msg.sender] = safeSub(balances[msg.sender], _tokens);
+        totalSupply = safeSub(totalSupply, _tokens); 
+        totalTokens = safeSub(totalTokens,_tokens);
+        amountSpent[msg.sender] = safeAdd(amountSpent[msg.sender], _tokens);
+        emit Withdraw(msg.sender, _tokens);
+        withdrawalDay = block.timestamp;
+    }
+    // ------------------------------------------------------------------------
+    // Checks if there is still enough tokens to withdraw within in that day
+    // it also resets the amount tokens already withdrawn/spent if it is on a 
+    // different day
+    // ------------------------------------------------------------------------
+    function isUnderLimit(address withdrawer, uint _tokens) internal returns (bool) {
+        if (today() > withdrawalDay) {
+            withdrawalDay = block.timestamp;
+            amountSpent[withdrawer] = 0;
+        }
+        if (amountSpent[withdrawer] + _tokens <= dailyWithdraw)
+            return true;
+        return false;
     }
 }
