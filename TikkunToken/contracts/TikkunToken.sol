@@ -35,10 +35,11 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     string public  name;
     uint8 public decimals;
     uint public totalSupply;
+    uint public totalTokens;
+    uint private marketCap;
     uint256 public interestRate;
     uint public withdrawalDay;
     uint private dailyWithdraw = 5000;
-    uint private presentDay = today();
     address public minter;
     
 
@@ -52,6 +53,7 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     event LogTotalSupplyIncreased(uint256 totalSupply);
     event LogBalanceIncreased(address buyer, uint256 balances);
     event InterestPaid(address to, uint256 interestDue);
+    event InterestCleared(address to, uint256 interestDue);
     event InterestCalculated(address to, uint256 interestPayment);
     event LimtBreach(address owner, uint256 amount);
     event InsufficientFunds(address owner, uint256 amount);
@@ -66,6 +68,8 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
         decimals = 8;
         totalSupply = 0;
         interestRate = 6;
+        totalTokens = 0;
+        marketCap = 10000000000;
         
     }
 
@@ -75,11 +79,21 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     function totalSupply() public view returns (uint totalSupply) {
         return totalSupply - balances[address(0)];
     }
+    // ------------------------------------------------------------------------
+    // This function is used to change the market cap
+    // ------------------------------------------------------------------------
+    function newMarketCap(uint _marketcap) public constant returns (uint) {
+        return marketCap = _marketcap;
+    }
+
+    function totalTokens() public pure returns (uint totalTokens) {
+        return totalTokens;
+    }
 
     // ------------------------------------------------------------------------
     // Get the token balance for account `tokenOwner`
     // ------------------------------------------------------------------------
-    function balanceOf(address tokenOwner) public constant returns (uint balance) {
+    function balanceOf(address tokenOwner) public view returns (uint balance) {
         return balances[tokenOwner];
     }
 
@@ -147,6 +161,7 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     }
 
     function () public payable {
+        require(totalSupply < marketCap,"Supply has reached market cap");
         uint tokens;
         tokens = msg.value;
         balances[msg.sender] = safeAdd(balances[msg.sender], tokens);
@@ -162,8 +177,12 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     function mint(uint value, address to) public returns (bool success) {
         // if (msg.sender != owner) return;
         //emit LogBuyTikkun(to, value);
+        //if (msg.sender != owner) return;
+        require(totalSupply < marketCap,"Supply has reached market cap");
         totalSupply = safeAdd(totalSupply, value);
+        totalTokens = safeAdd(totalTokens,value);
         balances[to] = safeAdd(balances[to], value);
+        emit Transfer(address(0), to, value);
         emit LogBuyTikkun(to, value);
         emit LogTotalSupplyIncreased(totalSupply);
         emit LogBalanceIncreased(to, balances[to]);
@@ -176,7 +195,9 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     // -----------------------------------------------------------------------
     function sellTKK(uint value) public returns (bool success) {
         if (msg.sender != owner) return;
+        require(totalSupply < marketCap,"Supply has reached market cap");
         balances[msg.sender] = safeSub(balances[msg.sender], value);
+        totalTokens = safeSub(totalTokens,value);
         totalSupply = safeSub(totalSupply, value);  
         emit Transfer(msg.sender, address(0), value);
         return true;
@@ -206,8 +227,10 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     //----------------------------------------------------------------------
     function payInterest(address to) public returns (uint256 interest){
         balances[to] = safeAdd(balances[to], interestDue[to]);
-        clearInterest(to);
+        totalSupply = safeAdd(totalSupply, interestDue[to]);
+        emit Transfer(address(0), to, interestDue[to]);
         emit InterestPaid(to, interestDue[to]);
+        clearInterest(to);
         return interestDue[to];
     }
 
@@ -216,6 +239,7 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     //----------------------------------------------------------------------
     function clearInterest(address to) public returns (uint256 interest){
         interestDue[to] = safeSub(interestDue[to], interestDue[to]);
+        emit InterestCleared(to, interestDue[to]);
         return interestDue[to];
     }
 
@@ -229,7 +253,12 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     // ------------------------------------------------------------------------
     // Interest rate
     // ------------------------------------------------------------------------
-    function interestRate() public constant returns (uint) {
+    function newInterestRate( uint _interest) public constant returns (uint interest) {
+        return interestRate = _interest;
+    }
+
+
+    function getInterestRate() public view returns (uint) {
         return interestRate;
     }
 
@@ -256,6 +285,14 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
         return true;
     }
 
+
+    // function withDraw (address owner, uint _tokens) public returns (bool success){
+    //     balances[owner] = safeSub(balances[msg.sender], _tokens);
+    //     totalTokens = safeSub(totalTokens,_tokens);
+    //     totalSupply = safeSub(totalSupply, _tokens);  
+    //     emit Transfer(owner, address(0), _tokens);
+    //     return true;
+    // }
     // ------------------------------------------------------------------------
     // Checks if there is still enough tokens to withdraw within in that day
     // it also resets the amount tokens already withdrawn/spent if it is on a 

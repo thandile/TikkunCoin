@@ -93,12 +93,14 @@ App = {
                   // we cannot but tokens
                   return false;
             }
+            console.log("about to redeem rands");
              // get the instance of the ZombieOwnership contract
             App.contracts.TikkunToken.deployed().then(function (instance) {
                   // call the buyTKK function, 
                   // passing the amount being bought and the transaction parameters
-                  return instance.withDraw(_amt_redeeming, App.account, {from:App.account, gas: 6000000});
+                  return instance.withDraw(App.account, _amt_redeeming, {from:App.account});
                   }).then(function(result){
+
                         console.log(result.logs);
                   }).catch(e => {
                         console.log(e);
@@ -138,7 +140,7 @@ App = {
 
       calculateInterest: function() {
             var now = new Date();
-            var millisTill12 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 11, 50, 0, 0) - now;
+            var millisTill12 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 14, 05, 0, 0) - now;
             if (millisTill12 < 0) {
                   millisTill12 += 86400000; // it's after 12am, try 12am tomorrow.
              }
