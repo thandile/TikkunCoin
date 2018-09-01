@@ -33,7 +33,7 @@ App = {
             // set the provider for our contract
             App.contracts.TikkunToken.setProvider(App.web3Provider);
             // retrieve zombies from the contract
-            App.calculateInterest()
+            App.calculateInterest();
             //update account info
             return App.displayAccountInfo();
         });
@@ -138,7 +138,7 @@ App = {
 
       calculateInterest: function() {
             var now = new Date();
-            var millisTill12 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 24, 0, 0, 0) - now;
+            var millisTill12 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 11, 50, 0, 0) - now;
             if (millisTill12 < 0) {
                   millisTill12 += 86400000; // it's after 12am, try 12am tomorrow.
              }
@@ -150,6 +150,7 @@ App = {
                   }).then(function(result){
                         App.payInterest();
                         console.log(result.logs);
+                        alert("interest paid!! ", +result);
                   });},
                   millisTill12);
       },
