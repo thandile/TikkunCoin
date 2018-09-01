@@ -1,0 +1,23 @@
+.stability {
+	background-image: url("balance-stability-rocks.jpeg");
+	background-size: cover;
+	background-position: center;
+}
+
+.fullBackground {
+
+  background-position: center center;
+  background-attachment: fixed
+  background-size: cover;
+  position: absolute;
+  width: 10
+  height: 100
+}
+
+.third-slide, .second-slide, .first-slide {
+	opacity: 0.2;
+}
+
+.rounded-circle {
+	border: 2px grey solid;
+}

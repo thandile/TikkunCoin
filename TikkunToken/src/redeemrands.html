@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="Tikkunlogo.png">
+    <title>Redeem Rands</title>
+    <!-- Bootstrap core CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <!-- Custom styles for this template -->
+    <link href="form-validation.css" rel="stylesheet">
+  </head>
+  <body class="bg-light">
+    <div class="jumbotron">
+      <div class="container" allign = "text-center">
+        <div class="py-5 text-center">
+          <a href="TikkunMain.html"><img class="d-block mx-auto mb-4 minipic" src="Tikkunlogo.png" alt="" width="72" height="72"></a>
+          <h2>Redeem Rands</h2>
+          <p class="lead">Enter Bank Account details below and convert your Tikkun back into Rands.<br> Any withdrawals are subject to withdrawal limits of R2000 daily. <br> You will receive your redeemed money in 3 workind days.</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-4 order-md-2 mb-4">
+        <h4 class="d-flex justify-content-between align-items-center mb-3">
+          <span class="text-muted">Your account</span>
+        </h4>
+          <ul class="list-group mb-3">
+            <li class="list-group-item d-flex justify-content-between lh-condensed">
+                <div>
+                  <div span class="text-muted">Account: </span>
+                  <p id="account" class="text-muted"></p></div>
+                </div>
+              </li>
+              <li class="list-group-item d-flex justify-content-between lh-condensed">  
+                <div>   
+                  <div span class="text-muted">Balance: </span>
+                  <p id="accountBalance" class="text-muted"></p></div>
+                </div>
+              </li>
+           </ul>
+      </div>
+    <div class="col-md-8 order-md-1">
+      <form class="needs-validation" novalidate>
+       
+      <div class="mb-3">
+        <label for="email">Email <span class="text-muted"></span></label>
+        <input type="email" class="form-control" id="email" placeholder="you@example.com">
+        <div class="invalid-feedback">
+          Please enter a valid email address for updates
+        </div>
+      </div>
+      <hr class="mb-4">
+      <div class="custom-control custom-checkbox">
+        <input type="checkbox" class="custom-control-input" id="save-info">
+        <label class="custom-control-label" for="save-info">Save this information for next time</label>
+      </div>
+      <hr class="mb-4">
+      <h4 class="mb-3">Banking Details</h4>
+      
+      <form>
+        <div class="col-md-5 mb-5">
+          <label>Amount of Rands to Redeem</label>
+          <input type="text" class="form-control" id="amtRedeemed" placeholder="100" required>
+          <div class="invalid-feedback">
+            Enter the Rand Amount.
+          </div>
+          <br>
+          <div class="row">
+            <div class="col-md-6 col-lg-6 mb-3">
+              <label for="cc-name">Name on card</label>
+              <input type="text" class="form-control" id="cc-name" placeholder="" required>
+              <small class="text-muted">Full name as displayed on card</small>
+              <div class="invalid-feedback">
+                Name on card is required
+              </div>
+            </div>
+            
+            <div class="col-md-6 col-lg-6 mb-3">
+              <label for="cc-number">Account number</label>
+              <input type="text" class="form-control" id="cc-number" placeholder="" required>
+              <div class="invalid-feedback">
+                Account number is required
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-6 col-lg-6 mb-3">
+              <label for="cc-expiration">Bank</label>
+              <input type="text" class="form-control" id="cc-expiration" placeholder="" required>
+              <div class="invalid-feedback">
+                Choose Bank where hold account
+              </div>
+            </div>
+            <div class="col-md-6 col-lg-6 mb-3">
+              <label for="cc-cvv">Branch Number</label>
+              <input type="text" class="form-control" id="cc-cvv" placeholder="" required>
+              <div class="invalid-feedback">
+                Branch Number required
+              </div>
+            </div>
+          </div>
+          <hr class="mb-4">
+          <button class="btn btn-lg btn-block" onclick="App.redeemRands(); return false;" type="submit">Continue to Redemption</button>
+        </div>
+      </form>
+    </body>
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/web3.min.js"></script>
+    <script src="js/truffle-contract.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+    // Example starter JavaScript for disabling form submissions if there are invalid fields
+    (function() {
+    'use strict';
+    window.addEventListener('load', function() {
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.getElementsByClassName('needs-validation');
+    // Loop over them and prevent submission
+    var validation = Array.prototype.filter.call(forms, function(form) {
+    form.addEventListener('submit', function(event) {
+    if (form.checkValidity() === false) {
+    event.preventDefault();
+    event.stopPropagation();
+    }
+    form.classList.add('was-validated');
+    }, false);
+    });
+    }, false);
+    })();
+    </script>
+  </html>
