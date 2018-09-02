@@ -14,14 +14,14 @@ These instructions will get you a copy of the project up and running on your loc
 
 The following is a list of the software that you will need to install before you can deploy the project on your machine.
 ```
-* VirtualBox (if you are not running a Unix based machine.)
-* Go-ETHereum
-* Ganache
-* NodeJS and NPM
-* Truffle
-* SolC
-* Visual code editor
-* MetaMask
+- VirtualBox (if you are not running a Unix based machine.)
+- Go-ETHereum
+- Ganache
+- NodeJS and NPM
+- Truffle
+- SolC
+- Visual code editor
+- MetaMask
 ```
 
 ### Installing
