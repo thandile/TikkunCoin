@@ -86,6 +86,10 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
         return marketCap = _marketcap;
     }
 
+    function getMarketCap() public constant returns (uint) {
+        return marketCap;
+    }
+
     function totalTokens() public pure returns (uint totalTokens) {
         return totalTokens;
     }
@@ -253,7 +257,7 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     // ------------------------------------------------------------------------
     // Interest rate
     // ------------------------------------------------------------------------
-    function newInterestRate( uint _interest) public constant returns (uint interest) {
+    function newInterestRate( uint _interest) public returns (uint interest) {
         return interestRate = _interest;
     }
 
