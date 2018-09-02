@@ -34,6 +34,7 @@ App = {
             App.contracts.TikkunToken.setProvider(App.web3Provider);
             // retrieve zombies from the contract
             App.calculateInterest();
+            App.adminView();
             //update account info
             return App.displayAccountInfo();
         });
@@ -263,17 +264,83 @@ App = {
                   });
             document.forms['tikkunform'].reset();    
       },
+
+
+      setInterestRate: function() {
+            var _new_interest_rate = $("#newInterestRate").val();
+            console.log(_new_interest_rate);
+            if (_new_interest_rate.trim() == '') {
+                  // we cannot update the interest rate
+                  return false;
+            }
+            App.contracts.TikkunToken.deployed().then(function (instance) {
+                  // call the newInterestRate function 
+                  return instance.newInterestRate(_new_interest_rate);
+                  }).then(function(result){
+                        console.log(result);
+                  }).catch(e => {
+                        console.log(e);
+                  }); 
+            App.adminView();
+      },
+
+      setMarketCap: function() {
+            var _new_market_cap = $("#newMarketCap").val();
+            if (_new_market_cap.trim() == '') {
+                  // we cannot update the interest rate
+                  return false;
+            }
+            App.contracts.TikkunToken.deployed().then(function (instance) {
+                  // call the newMarketCap function 
+                  return instance.newMarketCap(_new_market_cap);
+                  }).then(function(result){
+                        console.log(result.logs);
+                  }).catch(e => {
+                        console.log(e);
+                  });  
+            App.adminView();          
+      },
+
+      adminView: function(){
+            App.contracts.TikkunToken.deployed().then(function (instance) {
+                  // call the totalSupply function, 
+                  return instance.getInterestRate();
+                  }).then(function(result){
+                        $("#interestRate").text(result+"%");
+                        console.log(result);
+                  }).catch(e => {
+                        console.log(e);
+                  });
+            App.contracts.TikkunToken.deployed().then(function (instance) {
+                  // call the totalSupply function, 
+                  return instance.totalSupply();
+                  }).then(function(result){
+                        $("#totalSupply").text(result);
+                        console.log(result);
+                  }).catch(e => {
+                        console.log(e);
+                  });
+            App.contracts.TikkunToken.deployed().then(function (instance) {
+                  // call the newInterestRate function 
+                  return instance.getMarketCap();
+                  }).then(function(result){
+                        $("#marketCap").text(result+" TKK");
+                        console.log(result);
+                  }).catch(e => {
+                        console.log(e);
+                  }); 
+      },
+
 };
 
 $(function() {
      $(window).load(function() {
-          App.init();
-          // placeholder for current account 
-      var _account;
-      // set the interval
-      var accountInterval = setInterval(function () {
-      // check for new account information and display it
-      App.displayAccountInfo();
-      }, 100);
+            App.init();
+            var _account;
+            // set the interval
+            var accountInterval = setInterval(function () {
+            // check for new account information and display it
+            App.displayAccountInfo();
+            }, 100);
      });
 });
