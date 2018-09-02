@@ -84,6 +84,8 @@ App = {
                         console.log(result);
                   });
                   // log the error if there is one
+            document.forms['tikkunform'].reset();
+
       },
 
       redeemRands: function() {
@@ -93,7 +95,6 @@ App = {
                   // we cannot but tokens
                   return false;
             }
-            console.log("about to redeem rands");
              // get the instance of the ZombieOwnership contract
             App.contracts.TikkunToken.deployed().then(function (instance) {
                   // call the buyTKK function, 
@@ -112,30 +113,22 @@ App = {
                   }).then(function(result){
                         console.log(result);
                   });
+            document.forms['tikkunform'].reset();
                   // log the error if there is one
       },
 
-      transfer: function() {
-            var _receiver_address= $("#receiverAddress").val();
-            var _amt_transfering = $("#amtTransfering").val();
-            // if the value was not provided
-            if (_amt_transfering.trim() == '') {
-                  // we cannot transfer tokens
-                  return false;
+      transferEvents: function() {
+            if (document.getElementById("transferFrom").checked == false && document.getElementById("approveTransferFrom").checked == false){
+                  App.transfer();
             }
-            if (_receiver_address.trim() == '') {
-                  // we cannot transfer tokens
-                  return false;
+            if (document.getElementById("transferFrom").checked == true && document.getElementById("approveTransferFrom").checked == false){
+                  App.transferFrom();
             }
-            App.contracts.TikkunToken.deployed().then(function (instance) {
-                  // call the buyTKK function, 
-                  // passing the amount being bought and the transaction parameters
-                  return instance.transfer(_receiver_address, _amt_transfering, {from:App.account, gas: 6000000});
-                  }).then(function(result){
-                        console.log(result.logs);
-                  }).catch(e => {
-                        console.log(e);
-                  });
+            if (document.getElementById("transferFrom").checked == false && document.getElementById("approveTransferFrom").checked == true){
+                  App.approveTransferFrom();
+            }
+            document.forms['tikkunform'].reset();
+
       },
 
       calculateInterest: function() {
@@ -176,10 +169,111 @@ App = {
                         });
             }
       },
+
+      transfer: function() {
+            var _receiver_address= $("#receiverAddress").val();
+            var _amt_transfering = $("#amtTransfering").val();
+            // if the value was not provided
+            if (_amt_transfering.trim() == '') {
+                  // we cannot transfer tokens
+                  return false;
+            }
+            if (_receiver_address.trim() == '') {
+                  // we cannot transfer tokens
+                  return false;
+            }
+            App.contracts.TikkunToken.deployed().then(function (instance) {
+                  // call the buyTKK function, 
+                  // passing the amount being bought and the transaction parameters
+                  return instance.transfer(_receiver_address, _amt_transfering, {from:App.account, gas: 6000000});
+                  }).then(function(result){
+                        console.log(result.logs);
+                  }).catch(e => {
+                        console.log(e);
+                  });
+      },
+
+      approveTransferFrom: function() {
+            var _sender_address = $("#senderAddress").val();
+            var _receiver_address = $("#receiverAddress").val();
+            var _amt_transfering = $("#amtTransfering").val();
+            // if the value was not provided
+            if (_amt_transfering.trim() == '') {
+                  // we cannot transfer tokens
+                  return false;
+            }
+            if (_receiver_address.trim() == '') {
+                  // we cannot transfer tokens
+                  return false;
+            }
+            App.contracts.TikkunToken.deployed().then(function (instance) {
+                  // call the buyTKK function, 
+                  // passing the amount being bought and the transaction parameters
+                  return instance.approve(_receiver_address, _amt_transfering);
+                  }).then(function(result){
+                        console.log(result.logs);
+                  }).catch(e => {
+                        console.log(e);
+            });
+            App.contracts.TikkunToken.deployed().then(function (instance) {      
+                  return instance.allowance(App.account, _receiver_address);
+                  }).then(function(result){
+                        console.log(result.logs);
+                  }).catch(e => {
+                        console.log(e);
+            });
+            document.forms['tikkunform'].reset(); 
+      },
+
+      enableTextBox: function() {
+            var textBoxID = "senderAddress";
+            if (document.getElementById("transferFrom").checked == true)
+                document.getElementById(textBoxID).disabled = false;
+            else
+                document.getElementById(textBoxID).disabled = true;
+        },
+
+      transferFrom: function() {
+            var checkbox = $("approveTransferFrom").val();
+            var _sender_address = $("#senderAddress").val();
+            var _receiver_address = $("#receiverAddress").val();
+            var _amt_transfering = $("#amtTransfering").val();
+            // if the value was not provided
+            if (_amt_transfering.trim() == '') {
+                  // we cannot transfer tokens
+                  return false;
+            }
+
+            if (_receiver_address.trim() == '') {
+                  // we cannot transfer tokens
+                  return false;
+            }
+            if (_sender_address.trim() == '') {
+                  // we cannot transfer tokens
+                  return false;
+            }
+            App.contracts.TikkunToken.deployed().then(function (instance) {
+                  // call the buyTKK function, 
+                  // passing the amount being bought and the transaction parameters
+                  return instance.transferFrom(_sender_address, _receiver_address, _amt_transfering, {from:App.account});
+                  }).then(function(result){
+                        console.log(result.logs);
+                  }).catch(e => {
+                        console.log(e);
+                  });
+            document.forms['tikkunform'].reset();    
+      },
 };
 
 $(function() {
      $(window).load(function() {
           App.init();
+          // placeholder for current account 
+      var _account;
+      // set the interval
+      var accountInterval = setInterval(function () {
+      // check for new account information and display it
+      App.displayAccountInfo();
+      }, 100);
      });
 });

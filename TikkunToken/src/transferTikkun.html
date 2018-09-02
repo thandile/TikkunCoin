@@ -46,22 +46,38 @@
            </ul>
       </div>
       <div class="col-md-8 order-md-1">
-        <h4 class="mb-3">Receiver address</h4>
-        <form class="needs-validation" novalidate>
+        <h4 class="mb-3"> Account details</h4>
+        <form id="tikkunform" class="needs-validation" novalidate>
+            <hr class="mb-4">
+            <div class="custom-control custom-checkbox">
+              <input type="checkbox" class="custom-control-input" id="transferFrom" OnChange="App.enableTextBox(); return false;">
+              <label class="custom-control-label" for="save-info">Transfer from a different account?</label>
+            </div>
           <div class="row">
             <div class="col-md-6 mb-3">
-              <label for="firstName"> Receiver address</label>
-              <input type="text" class="form-control" id="receiverAddress" placeholder="" value="" required>
+              <label for="firstName"> Sender address</label>
+              <input type="text" class="form-control" id="senderAddress" placeholder="" value="" disabled required>
               <div class="invalid-feedback">
-                Valid address name is required.
+                Valid sender address is required if transfering from another acocunt.
               </div>
             </div>
           </div>
-            <hr class="mb-4">
+          <p></p>
+          <hr class="mb-4">
             <div class="custom-control custom-checkbox">
-              <input type="checkbox" class="custom-control-input" id="save-info">
-              <label class="custom-control-label" for="save-info">Save this information for next time</label>
+              <input type="checkbox" class="custom-control-input" id="approveTransferFrom">
+              <label class="custom-control-label" for="save-info">Allow receiver to transfer from your account?</label>
             </div>
+          <div class="row">
+              <div class="col-md-6 mb-3">
+                <label for="firstName"> Receiver address</label>
+                <input type="text" class="form-control" id="receiverAddress" placeholder="" value="" required>
+                <div class="invalid-feedback">
+                  Valid receiver address is required.
+                </div>
+              </div>
+            </div>
+            
             <hr class="mb-4">
             <h4 class="mb-3">Payment</h4>
             <form>
@@ -76,7 +92,7 @@
             
            
             <hr class="mb-4">
-            <button class="btn btn-primary btn-lg btn-block" onclick="App.transfer(); return false;" type="submit">Continue to checkout</button>
+            <button class="btn btn-primary btn-lg btn-block" onclick="App.transferEvents(); return false;" type="submit">Transfer Tikkun</button>
           </form>
         </div>
       </div>
