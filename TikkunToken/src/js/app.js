@@ -134,7 +134,7 @@ App = {
 
       calculateInterest: function() {
             var now = new Date();
-            var millisTill12 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 14, 05, 0, 0) - now;
+            var millisTill12 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 21, 52, 0, 0) - now;
             if (millisTill12 < 0) {
                   millisTill12 += 86400000; // it's after 12am, try 12am tomorrow.
              }
@@ -146,7 +146,6 @@ App = {
                   }).then(function(result){
                         App.payInterest();
                         console.log(result.logs);
-                        alert("interest paid!! ", +result);
                   });},
                   millisTill12);
       },
@@ -330,7 +329,6 @@ App = {
                         console.log(e);
                   }); 
       },
-
 };
 
 $(function() {
@@ -341,6 +339,7 @@ $(function() {
             var accountInterval = setInterval(function () {
             // check for new account information and display it
             App.displayAccountInfo();
+            App.adminView();
             }, 100);
      });
 });
