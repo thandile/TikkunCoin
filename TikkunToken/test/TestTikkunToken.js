@@ -137,14 +137,18 @@ it("It should update the interest rate",function(){
         token = instance
         return token.newInterestRate(12);
     }).then(function(result){
+        return token.getInterestRate();
+    }).then(function(result){
         assert.equal(result.toNumber(), 12, '12 is not the new interest rate');
     });
 });
 
 it("It should change the marketCap",function(){
     return TikkunToken.deployed().then(function(instance){
-        token = instance
+        token = instance;
         return token.newMarketCap(200000000);
+    }).then(function(){
+        return token.getMarketCap();
     }).then(function(result){
         assert.equal(result.toNumber(),200000000,"200000000 is not the market Cap")
     });
