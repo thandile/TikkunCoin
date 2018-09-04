@@ -78,9 +78,9 @@ A new tab running on localhost:3000 should open in your browser.
 ## Authors
 
 * **Thandile Xiphu**
-* **Ashley Flavish**
-* **Jothi Moodley**
-* **Samuel Ngoash**
+* **Ashley Favish**
+* **Jo Moodley**
+* **Samuel Ngoasheng**
 
 ## License
 
