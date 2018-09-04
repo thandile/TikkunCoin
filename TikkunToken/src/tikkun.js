@@ -28,4 +28,8 @@
     }
     });
     });
+
+    $("#audit").on('click',function(){
+        alert("Audit Reviews will be published bi-monthly following the launch in October ");
+    });
     })
