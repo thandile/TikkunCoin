@@ -4,7 +4,7 @@ import "./ERC621Interface.sol";
 import "./Owned.sol";
 
 // ----------------------------------------------------------------------------
-// 'Tikkun' CROWDSALE token contract
+// 'Tikkun' token contract
 //
 // Deployed to : 0xd62a88e4941a06bf35eaa19d1f898f45c9db080b
 // Symbol      : TKK
@@ -12,15 +12,12 @@ import "./Owned.sol";
 // Total supply: Flexible
 // Decimals    : 2
 //
-// Enjoy.
 //
 // (c) by Moritz Neto & Daniel Bar with BokkyPooBah / Bok Consulting Pty Ltd Au 2017. The MIT Licence.
 // ----------------------------------------------------------------------------
 
 // ----------------------------------------------------------------------------
 // Contract function to receive approval and execute function in one call
-//
-// Borrowed from MiniMeToken
 // ----------------------------------------------------------------------------
 contract ApproveAndCallFallBack {
     function receiveApproval(address from, uint256 tokens, address token, bytes data) public;
@@ -180,9 +177,6 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     // they are transfered to the buyer's address
     // -----------------------------------------------------------------------
     function mint(uint value, address to) public returns (bool success) {
-        // if (msg.sender != owner) return;
-        //emit LogBuyTikkun(to, value);
-        //if (msg.sender != owner) return;
         require(totalSupply < marketCap,"Supply has reached market cap");
         totalSupply = safeAdd(totalSupply, value);
         totalTokens = safeAdd(totalTokens,value);
@@ -220,7 +214,7 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     //---------------------------------------------------------------------------
     function calculateInterest(address to ) public returns (uint256 interest) {
         uint256 initBalance = balances[to];
-        uint256 interestPayment = initBalance*(1+interestRate)/uint256(36500);
+        uint256 interestPayment = (initBalance*interestRate)/uint256(36500);
         interestDue[to] = safeAdd(interestDue[to], interestPayment);
         emit InterestCalculated(to, interestPayment);
         return interestPayment;
@@ -291,14 +285,6 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
         return true;
     }
 
-
-    // function withDraw (address owner, uint _tokens) public returns (bool success){
-    //     balances[owner] = safeSub(balances[msg.sender], _tokens);
-    //     totalTokens = safeSub(totalTokens,_tokens);
-    //     totalSupply = safeSub(totalSupply, _tokens);  
-    //     emit Transfer(owner, address(0), _tokens);
-    //     return true;
-    // }
     // ------------------------------------------------------------------------
     // Checks if there is still enough tokens to withdraw within in that day
     // it also resets the amount tokens already withdrawn/spent if it is on a 
