@@ -76,6 +76,8 @@ App = {
                   return instance.mint(_amt_buying, App.account, {from:App.account});
                   }).then(function(result){
                         console.log(result.logs);
+                  }).catch(e => {
+                        console.log(e);
                   });
             App.contracts.TikkunToken.deployed().then(function (instance) {
                   // call the buyTKK function, 
@@ -96,24 +98,30 @@ App = {
                   // we cannot but tokens
                   return false;
             }
-             // get the instance of the ZombieOwnership contract
-            App.contracts.TikkunToken.deployed().then(function (instance) {
-                  // call the buyTKK function, 
-                  // passing the amount being bought and the transaction parameters
-                  return instance.withDraw(App.account, _amt_redeeming, {from:App.account});
-                  }).then(function(result){
+            var acc_balance = parseInt($("#accountBalance").text(), 10);
+            if (acc_balance < _amt_redeeming){
+                  alert("Whoops! you do not have enough funds available for this withdrawal.");
+            }
+            else{
+                  // get the instance of the ZombieOwnership contract
+                  App.contracts.TikkunToken.deployed().then(function (instance) {
+                        // call the buyTKK function, 
+                        // passing the amount being bought and the transaction parameters
+                        return instance.withDraw(App.account, _amt_redeeming, {from:App.account});
+                        }).then(function(result){
 
-                        console.log(result.logs);
-                  }).catch(e => {
-                        console.log(e);
+                              console.log(result.logs);
+                        }).catch(e => {
+                              console.log(e);
                   });
-            App.contracts.TikkunToken.deployed().then(function (instance) {
-                  // call the buyTKK function, 
-                  // passing the amount being bought and the transaction parameters
-                  return instance.totalSupply();
-                  }).then(function(result){
-                        console.log(result);
+                  App.contracts.TikkunToken.deployed().then(function (instance) {
+                        // call the buyTKK function, 
+                        // passing the amount being bought and the transaction parameters
+                        return instance.totalSupply();
+                        }).then(function(result){
+                              console.log(result);
                   });
+            }
             document.forms['tikkunform'].reset();
                   // log the error if there is one
       },
@@ -137,8 +145,8 @@ App = {
             var millisTill12 = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 21, 52, 0, 0) - now;
             if (millisTill12 < 0) {
                   millisTill12 += 86400000; // it's after 12am, try 12am tomorrow.
-             }
-             setTimeout(function(){ 
+            }
+            setTimeout(function(){ 
                    App.contracts.TikkunToken.deployed().then(function (instance) {
                   // call the buyTKK function, 
                   // passing the amount being bought and the transaction parameters
@@ -146,8 +154,10 @@ App = {
                   }).then(function(result){
                         App.payInterest();
                         console.log(result.logs);
-                  });},
-                  millisTill12);
+                  }).catch(e => {
+                        console.log(e);
+                  });
+            }, millisTill12);
       },
 
       payInterest: function() {
@@ -166,6 +176,8 @@ App = {
                         return instance.clearInterest(App.account);
                         }).then(function(result){
                               console.log(result.logs);
+                        }).catch(e => {
+                              console.log(e);
                         });
             }
       },
@@ -182,15 +194,21 @@ App = {
                   // we cannot transfer tokens
                   return false;
             }
-            App.contracts.TikkunToken.deployed().then(function (instance) {
-                  // call the buyTKK function, 
-                  // passing the amount being bought and the transaction parameters
-                  return instance.transfer(_receiver_address, _amt_transfering, {from:App.account, gas: 6000000});
-                  }).then(function(result){
-                        console.log(result.logs);
-                  }).catch(e => {
-                        console.log(e);
-                  });
+            var acc_balance = parseInt($("#accountBalance").text(), 10);
+            if (acc_balance < _amt_transfering){
+                  alert("Whoops! you do not have enough funds available for this transfer.");
+            }
+            else{
+                  App.contracts.TikkunToken.deployed().then(function (instance) {
+                        // call the buyTKK function, 
+                        // passing the amount being bought and the transaction parameters
+                        return instance.transfer(_receiver_address, _amt_transfering, {from:App.account, gas: 6000000});
+                        }).then(function(result){
+                              console.log(result.logs);
+                        }).catch(e => {
+                              console.log(e);
+                        });
+            }
       },
 
       approveTransferFrom: function() {
@@ -206,22 +224,28 @@ App = {
                   // we cannot transfer tokens
                   return false;
             }
-            App.contracts.TikkunToken.deployed().then(function (instance) {
-                  // call the buyTKK function, 
-                  // passing the amount being bought and the transaction parameters
-                  return instance.approve(_receiver_address, _amt_transfering);
-                  }).then(function(result){
-                        console.log(result.logs);
-                  }).catch(e => {
-                        console.log(e);
-            });
-            App.contracts.TikkunToken.deployed().then(function (instance) {      
-                  return instance.allowance(App.account, _receiver_address);
-                  }).then(function(result){
-                        console.log(result.logs);
-                  }).catch(e => {
-                        console.log(e);
-            });
+            var acc_balance = parseInt($("#accountBalance").text(), 10);
+            if (acc_balance < _amt_transfering){
+                  alert("Whoops! you do not have enough funds available for this transfer.");
+            }
+            else{
+                  App.contracts.TikkunToken.deployed().then(function (instance) {
+                        // call the buyTKK function, 
+                        // passing the amount being bought and the transaction parameters
+                        return instance.approve(_receiver_address, _amt_transfering);
+                        }).then(function(result){
+                              console.log(result.logs);
+                        }).catch(e => {
+                              console.log(e);
+                  });
+                  App.contracts.TikkunToken.deployed().then(function (instance) {      
+                        return instance.allowance(App.account, _receiver_address);
+                        }).then(function(result){
+                              console.log(result.logs);
+                        }).catch(e => {
+                              console.log(e);
+                  });
+            }
             document.forms['tikkunform'].reset(); 
       },
 
@@ -234,7 +258,6 @@ App = {
         },
 
       transferFrom: function() {
-            var checkbox = $("approveTransferFrom").val();
             var _sender_address = $("#senderAddress").val();
             var _receiver_address = $("#receiverAddress").val();
             var _amt_transfering = $("#amtTransfering").val();
@@ -260,6 +283,7 @@ App = {
                         console.log(result.logs);
                   }).catch(e => {
                         console.log(e);
+                        alert("Whoops not enough funds for this transfer.");
                   });
             document.forms['tikkunform'].reset();    
       },
@@ -267,20 +291,27 @@ App = {
 
       setInterestRate: function() {
             var _new_interest_rate = $("#newInterestRate").val();
-            console.log(_new_interest_rate);
             if (_new_interest_rate.trim() == '') {
                   // we cannot update the interest rate
                   return false;
             }
-            App.contracts.TikkunToken.deployed().then(function (instance) {
-                  // call the newInterestRate function 
-                  return instance.newInterestRate(_new_interest_rate);
-                  }).then(function(result){
-                        console.log(result);
-                  }).catch(e => {
-                        console.log(e);
-                  }); 
-            App.adminView();
+            var interest_rate = parseInt(_new_interest_rate, 10);
+            console.log(interest_rate);
+            if (interest_rate < 100 && interest_rate > 1 ){
+                  App.contracts.TikkunToken.deployed().then(function (instance) {
+                        // call the newInterestRate function 
+                        return instance.newInterestRate(interest_rate);
+                        }).then(function(result){
+                              console.log(result);
+                        }).catch(e => {
+                              console.log(e);
+                        }); 
+                  App.adminView();
+            }
+            else{
+                  alert("Whoops! Invalid value for the interest rate. Please enter a whole number between 1 and 100.");
+            }
+            document.forms['tikkunform'].reset();
       },
 
       setMarketCap: function() {
@@ -289,15 +320,24 @@ App = {
                   // we cannot update the interest rate
                   return false;
             }
-            App.contracts.TikkunToken.deployed().then(function (instance) {
-                  // call the newMarketCap function 
-                  return instance.newMarketCap(_new_market_cap);
-                  }).then(function(result){
-                        console.log(result.logs);
-                  }).catch(e => {
-                        console.log(e);
-                  });  
-            App.adminView();          
+            var existing_total_supply=  parseInt($("#totalSupply").text(), 10);
+            if (parseInt(_new_market_cap, 10) < existing_total_supply){
+                  alert("Whoops! The new market cap can not be less than the current total supply of Tikkun coins. Please try a larger value.");
+            }
+            else{
+                  App.contracts.TikkunToken.deployed().then(function (instance) {
+                        // call the newMarketCap function 
+                        return instance.newMarketCap(_new_market_cap);
+                        }).then(function(result){
+                              console.log(result.logs);
+                        }).catch(e => {
+                              console.log(e);
+                              alert("Whoops! Invalid market cap, please try enter a new value.")
+                        });  
+                  App.adminView();  
+            }
+            document.forms['tikkunform'].reset();
+
       },
 
       adminView: function(){

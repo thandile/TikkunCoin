@@ -17,6 +17,28 @@
     <link href="form-validation.css" rel="stylesheet">
   </head>
   <body class="bg-light">
+      <nav class="navbar navbar-default navbar-fixed-top">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              </button>
+              
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar">
+              <ul class="nav navbar-nav navbar-right">
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="buyTikkun.html">BUY</a></li>
+                <li><a href="transferTikkun.html">TRANSFER</a></li>
+                <li><a href="redeemrands.html">WITHDRAWALS</a></li>
+
+              </ul>
+            </div>
+          </div>
+        </nav>
+        <br>
     <div class="jumbotron">
       <div class="container">
         <div class="py-5 text-center">
@@ -57,7 +79,7 @@
           
             <hr class="mb-4">
             <h4 class="mb-3">Update admin settings</h4>
-            <form>
+            <form id="tikkunform">
                 <div class="row">
                     <div class="col-md-6 col-lg-6 mb-3">
                         <label>Interest rate</label>
@@ -67,7 +89,7 @@
           </form>
             <hr class="mb-4">
             <button class="btn btn-primary btn-sm btn-block" onclick="App.setInterestRate(); return false;" type="submit">Update Interest Rate</button>
-            <form>
+            <form id="tikkunform">
             <div class="row">
               <div class="col-md-6 col-lg-6 mb-3">
                 <label for="cc-number">Market Capitalisation Limit</label>
