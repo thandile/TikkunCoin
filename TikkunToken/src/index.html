@@ -6,6 +6,7 @@
   <link rel="stylesheet" type="text/css" href="tikkuncss.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
   <!-- Theme Made By www.w3schools.com - No Copyright -->
   <title>Tikkun Coin</title>
   <meta charset="utf-8">
@@ -23,35 +24,36 @@
         </button>
         
         <a class="navbar-brand" href="#myPage">Home</a>
+        <br>
       </div>
       <div class="collapse navbar-collapse" id="myNavbar">
         <ul class="nav navbar-nav navbar-right">
           <li><a href="#about">ABOUT</a></li>
           <li><a href="#services">BENEFITS</a></li>
           <li><a href="#portfolio">PORTFOLIO</a></li>
-          <li><a href="buyTikkun.html">BUY</a></li>
-          <li><a href="transferTikkun.html">TRANSFER</a></li>
-          <li><a href="redeemrands.html">REDEEM</a></li>
-          <li><a href="./TikkunApp/TikkunApp2.0.html">APP</a></li>
-          <li><a href="#whitepaper">WHITE PAPER</a></li>
+          <li><a href="buyTikkun.html" target="_blank" >BUY</a></li>
+          <li><a href="transferTikkun.html" target="_blank" >TRANSFER</a></li>
+          <li><a href="redeemrands.html" target="_blank" >REDEEM</a></li>
+          <li><a href="./TikkunApp/TikkunApp2.0.html" target="_blank" >APP</a></li>
+          <li><a href="https://github.com/thandile/TikkunCoin" target="_blank" >GITHUB</a></li>
           <li><a href="#contact">CONTACT</a></li>
-          <li><img src="Tikkunlogo.png" class = "minipic"></li>
+          <li><img src="./images/Tikkunlogo.png" class = "minipic"></li>
         </ul>
       </div>
     </div>
   </nav>
   <div class="jumbotron text-center">
+    <br><br>
     <h1>Tikkun Coin</h1>
     <p>Putting Stability into Crypto</p>
-    <img class="d-block mx-auto mb-4 logo-small " src="Tikkunlogo.png" alt="" width="72" height="72" opacity = "1">
-    <form>
-      <div class="input-group">
-        <input type="email" class="form-control" size="50" placeholder="Email Address" required>
-        <div class="input-group-btn">
-          <button type="button" class="btn btn-primary" type="email">Subscribe to Our Newsletter</button>
+    <img class="d-block mx-auto mb-4 logo-small " src="./images/Tikkunlogo.png" alt="" width="72" height="72" opacity = "1">
+
+      <div>
+        
+          <a href = "#"><button type="button" class="btn btn-primary" >View Our Business Plan</button></a>
         </div>
       </div>
-    </form>
+    
   </div>
   <!-- Container (About Section) -->
   <div id="about" class="container-fluid">
@@ -59,8 +61,8 @@
       <div class="col-sm-8">
         <h2>About Us</h2><br>
         <h4>Tikkun is translated as to “fix” or “repair” which is based on the concept of repairing the world. This is our mission at Tikkun; We are going to repair the cryptocurrency volatility, thereby repairing the original idea of cryptocurrencies as a functioning money and currency. </h4><br>
-        <p>Tikkun is the stable cryptocurrency tailor made for South Africans to transact, save and earn interest. It is now possible to enter the exciting cryptocurrency space without the concern of volatility. <br/>Tikkun coin will be backed by a 1:1 ratio of South African Rands which are divided into a cash and safe government bond investment portfolio. Through this investment, you will receive monthly interest on your holdings for everyday that you hold Tikkun. <br/> <em>Come and join the future...</em> </p>
-        <br><button class="btn btn-default btn-lg">Get in Touch</button>
+        <p>Tikkun is the stable cryptocurrency tailor made for South Africans to transact, save and earn interest. It is now possible to enter the exciting cryptocurrency space without the concern of volatility. <br/>Tikkun coin will be backed by a 1:1 ratio of South African Rands which are divided into a cash and safe government bond investment portfolio. Through this investment, you will receive monthly interest on your holdings for everyday that you hold Tikkun. <br/> <em>Come and join the future...</em> <br> To learn more about the general stable coin landscape <a href="./documents/StableCoinLandscape.pdf" target="_blank">Click here</a>.</p>
+        <br><a href = #contact><button class="btn btn-default btn-lg">Get in Touch</button></a>
       </div>
       <div class="col-sm-4">
         <span class=" glyphicon glyphicon-wrench logo"></span>
@@ -88,7 +90,7 @@
       <div class="col-sm-4">
         <span class=" glyphicon glyphicon-zoom-in logo-small"></span>
         <h4>TRANSPARENCY</h4>
-        <p>Live updates on our portfolio <br> Monthly Audit Reviews </p>
+        <p>Live updates on our portfolio <br> <a href="#" id="audit">Monthly Audit Reviews</a> </p>
       </div>
       <div class="col-sm-4">
         <span class="glyphicon glyphicon-bitcoin logo-small"></span>
@@ -123,52 +125,51 @@
   <!-- Container (Portfolio Section) -->
   <div id="portfolio" class="container-fluid text-center bg-grey">
     <h2>Portfolio</h2><br>
+    <h3>View how our Tikkun investment model works <a href = "#"> here</a><h3><br><br>
     <h4>Where we have Invested</h4>
     <div class="row text-center slideanim">
       <div class="col-sm-4">
         <div class="thumbnail">
-          <img src="saflagcoins.jpg" alt="Cash" width="400" height="300">
+          <img src="./images/saflagcoins.jpg" alt="Cash" width="400" height="300">
           <p><strong>CASH</strong></p>
           <p>20% of our Potfolio is <br> cash for ease of converting<br> Tikkun  Rands.</p>
         </div>
       </div>
       <div class="col-sm-4">
         <div class="thumbnail">
-          <img src="bondimage.jpg" alt="Govt. Bonds" width="400" height="300">
+          <img src="./images/bondimage.jpg" alt="Govt. Bonds" width="400" height="300">
           <p><strong>SA Government Bonds</strong></p>
           <p>With the backing of the South <br> African Government, our portfolio contains <br> only Risk-Free Assets.</p>
         </div>
       </div>
       <div class="col-sm-4">
         <div class="thumbnail">
-          <img src="scale.jpg" alt="Re-Balancing" width="400" height="300">
+          <img src="./images/scale.jpg" alt="Re-Balancing" width="400" height="300">
           <p><strong>Re-Balancing</strong></p>
           <p>Based on conversions of Rands to Tikkun <br> and vice versa, we will perform portfolio <br>rebalancing when necessary.</p>
         </div>
       </div>
-    </div><br><br><br><br>
+    </div><br><br><br><br><br>
+      
+    <h3>View a simulation of our Tikkun Portfolio Growth<a href = "#"> here</a>.<br><br><br><br></h3>
+
     
-    <h2>Our Partners</h2>
+    <h2>Our Potential Partners</h2>
     <div id="myCarousel" class="carousel slide text-center" data-ride="carousel">
       <!-- Indicators -->
       <!-- Wrapper for slides -->
       <div class="carousel-inner" role="listbox">
+  
         <div class="item active">
-          <h4>Argon Investment<br></h4>
-          <center>
-          <img src="Argon.jpg" class = "minipic">
-          </center>
-        </div>
-        <div class="item">
           <h4>Snapscan<br></h4>
           <center>
-          <img src="snapscan.jpeg" class = "minipic">
+          <img src="./images/snapscan.jpeg" class = "minipic">
           </center>
         </div>
         <div class="item">
           <h4>South African Reserve Bank<br></h4>
           <center>
-          <img src="SARB.jpg" class = "minipic">
+          <img src="./images/SARB.jpg" class = "minipic">
           </center>
         </div>
       </div>
@@ -184,40 +185,114 @@
     </div>
     <br><br><br>
   </div>
-  
-  <!-- Container (Contact Section) -->
-  <div id="contact" class="container-fluid bg-grey">
-    <h2 class="text-center">CONTACT</h2>
+  <div class="container">
+    <div class="row text-center">
+      <h1 class="heading-title"> Our Team</h1>
+    </div>
     <div class="row">
-      <div class="col-sm-5">
-        <p>Contact us and we'll get back to you within 24 hours.</p>
-        <p><span class="glyphicon glyphicon-map-marker"></span> Cape Town, South Africa</p>
-        <p><span class="glyphicon glyphicon-phone"></span> +27 83 431 9090</p>
-        <p><span class="glyphicon glyphicon-envelope"></span> contact@tikkun.com</p>
-      </div>
-      <div class="col-sm-7 slideanim">
-        <div class="row">
-          <div class="col-sm-6 form-group">
-            <input class="form-control" id="name" name="name" placeholder="Name" type="text" required>
-          </div>
-          <div class="col-sm-6 form-group">
-            <input class="form-control" id="email" name="email" placeholder="Email" type="email" required>
+      <div class="col-md-3 col-sm-6">
+        <div class="our-team ">
+          <img src="./images/Ashleigh Favish Photograph.png" alt=""/>
+          <div class="team-content">
+            <h3 class="team-prof">
+            <a href="#">Ashleigh Favish</a>
+            <small>Mphil in Financial Technology-UCT <br>BBusSci in Finance with Accounting-UCT<br> Risk Management</small>
+            </h3>
+            <ul class="social-link">
+              <li><a href="https://www.facebook.com/ashleigh.favish" class="fa fa-facebook"></a></li>
+              <li><a href="https://www.google.com/search?safe=off&source=hp&ei=sm1-W8yWOMvmsAfmwZ7YAg&q=ashleigh+favish&oq=ashleigh+favish&gs_l=psy-ab.3..0i22i30k1l3j0i22i10i30k1j0i22i30k1.1109.4759.0.4986.20.15.1.0.0.0.707.2466.2-1j4j6-1.6.0....0...1.1.64.psy-ab..13.7.2469.0..0j0i67k1j0i20i263k1.0.OaItq0BuLc4" class="fa fa-google"></a></li>
+              <li><a href="https://www.linkedin.com/in/ashleigh-favish-43703ba7" class="fa fa-linkedin"></a></li>
+            </ul>
           </div>
         </div>
-        <textarea class="form-control" id="comments" name="comments" placeholder="Comment" rows="5"></textarea><br>
-        <div class="row">
-          <div class="col-sm-12 form-group">
-            <button class="btn btn-default pull-right" type="submit">Send</button>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="our-team">
+          <img src="images/Thandipic.jpg" alt=""/>
+          <div class="team-content">
+            <h3 class="team-prof">
+            <a href="#">Thandile Xiphu</a>
+            <small>Mphil in Financial Technology-UCT <br> BSc Honours degree in Computer Science <br> Software Developer and Solidity Expert</small>
+            </h3>
+            <ul class="social-link">
+              <li><a href="https://www.facebook.com/thandile.xiphu.1" class="fa fa-facebook"></a></li>
+              <li><a href="https://www.google.co.za/search?q=Thandile+Xiphu&rlz=1C1GGRV_enIL756IL756&oq=Thandile+Xiphu&aqs=chrome..69i57j69i61.652j0j4&sourceid=chrome&ie=UTF-8" class="fa fa-google"></a></li>
+              <li><a href="https://www.linkedin.com/in/thandile-xiphu-831271a3/" class="fa fa-linkedin"></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="our-team">
+          <img src="images/Samuel.jpg" alt=""/>
+          <div class="team-content">
+            <h3 class="team-prof">
+            <a href="#">Samuel Ngoasheng</a>
+            <small>Mphil in Financial Technology-UCT <br>BSc Physics - UL <br> Solidity and Blockchain Expert</small>
+            </h3>
+            <ul class="social-link">
+              <li><a href="https://www.facebook.com/public/Samuel-Masilo" class="fa fa-facebook"></a></li>
+              <li><a href="https://www.google.co.za/search?ei=a4aNW_OaM6WUgAa8mLO4Bw&q=samuel+ngoashen&oq=samuel+ngoashen&gs_l=psy-ab.3..33i21k1.1399.3620.0.3843.3.3.0.0.0.0.258.258.2-1.1.0....0...1c.1.64.psy-ab..2.1.256....0.D9guDZIx8oM" class="fa fa-google"></a></li>
+              <li><a href="https://www.linkedin.com/in/samuel-ngoasheng-6b648473/" class="fa fa-linkedin"></a></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 col-sm-6">
+        <div class="our-team">
+          <img src="images/Jo.jpg" alt=""/>
+          <div class="team-content">
+            <h3 class="team-prof">
+            <a href="#">Jothi Moodley</a>
+            <small>PHD Mathematics-UKZN<br>Mphil in Financial Technology-UCT <br>MSC Applied Mathematics <br> Advanced Models and Simulations</small>
+            </h3>
+            <ul class="social-link">
+              <li><a href="https://www.facebook.com/jothi.moodley" class="fa fa-facebook"></a></li>
+              <li><a href="https://www.google.co.za/search?q=Jothi+Moodley&rlz=1C1GGRV_enIL756IL756&oq=Jothi+Moodley&aqs=chrome..69i57j69i61j0.1510j0j9&sourceid=chrome&ie=UTF-8" class="fa fa-google"></a></li>
+              <li><a href="https://www.linkedin.com/in/jothi-moodley-68446b39/" class="fa fa-linkedin"></a></li>
+            </ul>
           </div>
         </div>
       </div>
     </div>
+    <br><br><br>
   </div>
-  <footer class="container-fluid text-center">
-    <a href="#myPage" title="To Top">
-      <span class="glyphicon glyphicon-chevron-up"></span>
-    </a>
-  </footer>
-  <script type="text/javascript" src = tikkun.js></script>
-</body>
-</html>
+  
+  <!-- Container (Contact Section) -->
+  <div id="contact" class="container-fluid bg-grey">
+      <h2 class="text-center">CONTACT</h2>
+      <div class="row">
+        <div class="col-sm-5">
+          <p>Contact us and we'll get back to you within 24 hours.</p>
+          <p><span class="glyphicon glyphicon-map-marker"></span> Cape Town, South Africa</p>
+          <p><span class="glyphicon glyphicon-phone"></span> +27 83 431 9090</p>
+          <p><span class="glyphicon glyphicon-envelope"></span> tikkun@stablecoin.com</p>
+          
+        </div>
+        <div class="col-sm-7 slideanim">
+          <div class="row">
+            <div class="col-sm-6 form-group">
+              <input class="form-control" id="name" name="name" placeholder="Name" type="text" required>
+            </div>
+            <div class="col-sm-6 form-group">
+              <input class="form-control" id="email" name="email" placeholder="Email" type="email" required>
+            </div>
+          </div>
+          <textarea class="form-control" id="comments" name="comments" placeholder="Comment" rows="5"></textarea><br>
+          <div class="row">
+            <div class="col-sm-12 form-group">
+              <a href="mailto:tikkun@stablecoin.com">
+                <button class="btn btn-default pull-right" type="submit">Send</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <footer class="container-fluid text-center">
+        <a href="#myPage" title="To Top">
+          <span class="glyphicon glyphicon-chevron-up"></span>
+        </a>
+      </footer>
+      <script type="text/javascript" src = tikkun.js></script>
+    </body>
+  </html>

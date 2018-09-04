@@ -8,13 +8,39 @@
     <link rel="icon" href="Tikkunlogo.png">
     <title>Redeem Rands</title>
     <!-- Bootstrap core CSS -->
+    <!-- Bootstrap core CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet" >
+    <link href="https://fonts.googleapis.com/css?family=Lato" rel="stylesheet" >
+    <link rel="stylesheet" href="tikkuncss.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <!-- Custom styles for this template -->
     <link href="form-validation.css" rel="stylesheet">
   </head>
   <body class="bg-light">
+      <nav class="navbar navbar-default navbar-fixed-top">
+          <div class="container">
+            <div class="navbar-header">
+              <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              </button>
+              
+            </div>
+            <div class="collapse navbar-collapse" id="myNavbar">
+              <ul class="nav navbar-nav navbar-right">
+                <li><a href="index.html">HOME</a></li>
+                <li><a href="buyTikkun.html">BUY</a></li>
+                <li><a href="transferTikkun.html">TRANSFER</a></li>
+                <li><a href="redeemrands.html">WITHDRAWS</a></li>
+
+              </ul>
+            </div>
+          </div>
+        </nav>
+        <br>
     <div class="jumbotron">
       <div class="container" allign = "text-center">
         <div class="py-5 text-center">
@@ -104,7 +130,7 @@
             </div>
           </div>
           <hr class="mb-4">
-          <button class="btn btn-lg btn-block" onclick="App.redeemRands(); return false;" type="submit">Redeem Rands</button>
+          <button class="btn btn-sm btn-block" onclick="App.redeemRands(); return false;" type="submit">Redeem Rands</button>
         </div>
       </form>
     </body>
