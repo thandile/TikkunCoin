@@ -128,6 +128,10 @@ it("Should withdraw funds",function(){
         return token.balanceOf(accounts[0]);
     }).then(function(result){
         assert.equal(result.toNumber(),198000,"198000 wasn't in account 1");
+    }).then(function(){
+        return token.withdrawalBalanceOf(accounts[0]);
+    }).then(function(result){
+        assert.equal(result.toNumber(),2000,"2000 isn't the withdrawal balance of account 1");
     });
 });
 
