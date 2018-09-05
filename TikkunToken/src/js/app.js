@@ -60,6 +60,13 @@ App = {
                   
                   $("#accountBalance").text(balance + " TKK");
             });
+            // retrieve the balance corresponding to that account
+            App.contracts.TikkunToken.deployed().then(function (instance) {
+                  // insert the balance in the p-tag with id='accountBalance'
+                 return instance.withdrawalBalanceOf(App.account);
+                 }).then(function(balance){
+                       $("#withdrawalBalance").text(balance + " TKK");
+                 });
       },   
       
       buyTKK: function() {
@@ -98,8 +105,11 @@ App = {
                   // we cannot but tokens
                   return false;
             }
+            var max_withdraw = 5000;
+            var withdraw_balance = parseInt($("#withdrawalBalance").text(), 10);
             var acc_balance = parseInt($("#accountBalance").text(), 10);
-            if (acc_balance < _amt_redeeming){
+            var tot_withdraw = withdraw_balance +  parseInt(_amt_redeeming, 10);
+            if (acc_balance < _amt_redeeming || tot_withdraw > max_withdraw){
                   alert("Whoops! you do not have enough funds available for this withdrawal.");
             }
             else{
