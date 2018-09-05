@@ -91,7 +91,7 @@ contract('TikkunToken', function(accounts) {
         }).then(function(result){
         return token.interestOf(accounts[1]);
         }).then(function(result){
-        assert.equal(result.toNumber(), 115, 'accounts[1] interest due is wrong');
+        assert.equal(result.toNumber(), 98, 'accounts[1] interest due is wrong');
         }).then(function(result){
         return token.payInterest(accounts[1]);
         }).then(function(result){
@@ -105,7 +105,7 @@ contract('TikkunToken', function(accounts) {
         }).then(function(result){
         return token.balanceOf(accounts[1]);
         }).then(function(result){
-        assert.equal(result.toNumber(), 600115, 'accounts[1] interest is wrong');
+        assert.equal(result.toNumber(), 600098, 'accounts[1] interest is wrong');
         }).then(function(result){
         return token.balanceOf(accounts[0]);
         }).then(function(result){
@@ -121,7 +121,7 @@ it("Should withdraw funds",function(){
     }).then(function(){
         return token.balanceOf(accounts[1]);
     }).then(function(result){
-        assert.equal(result.toNumber(),596115,"596115 wasn't in account 0");
+        assert.equal(result.toNumber(),596098,"596098 wasn't in account 0");
     }).then(function(){
         return token.withDraw(accounts[0], 2000,{from : accounts[0]});
     }).then(function(){
