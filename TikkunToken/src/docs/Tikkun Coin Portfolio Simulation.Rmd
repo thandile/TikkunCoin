@@ -1,0 +1,138 @@
+---
+title: "Tikkun Coin Portfolio Simulation"
+output: html_notebook
+---
+
+<hr>
+
+```{r global_options, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE, eval=TRUE)
+```
+
+#### We provide a simulation of the total Tikkun Coin amount held to show you how the portfolio can behave over time. Specifying the month and the total portfolio amount at the start of the month, we randomly generate deposits and withdrawals of our stable coin for each day in the month. Then we add up these quantities to obtain a total value per day. We create three scenarios - a strong portfolio, stable portfolio and weak portfolio. This simulation is built using R software and the code and results are displayed below in chunks.
+
+```{r eval=FALSE}
+#Packages
+library(msm)
+library(lubridate)
+library(knitr)
+options(scipen=999)
+```
+
+</br>
+
+#### We assume that on average the distribution of amounts deposited (in units of R1000) follows a lognormal distribution. The logarithmic mean is taken to be 0.8 and the logarithmic standard deviation is 1. This distribution is plotted below. It is skewed with a long-tail and fits our view that we can expect a larger number of small deposits and very few large deposits from our coinholders. The minimum deposit required is R50 and we set the maximum deposit in this simulation to be R500 000.
+
+```{r}
+upper <- 1000*qlnorm(p=0.95, meanlog=0.8, sdlog=1)
+curve(dlnorm(x/1000, meanlog=0.8, sdlog=1), from=50, to=upper, n=1000, type="l", col="blue", lwd=2, 
+      main="Figure 1a. Assumed distribution of deposits", xlab="Deposit amount", ylab="Probability")
+```
+
+</br>
+
+#### We also assume that on average the distribution of amounts withdrawn (in units of R1000) follows a truncated normal distribution, as shown in the figure below. The untruncated mean is set to 1, untruncated standard deviation is 2 and the interval from 0 to 5 is used. We also expect lower transaction values for withdrawals, however, unlike deposits, there should only be a slight skewness and no long tail. As per our business model, the maximum amount that can be withdrawn daily is limited to R5000.
+
+```{r}
+curve(dtnorm(x/1000, mean=1, sd=2, lower=0, upper=5), from=0, to=5000, n=1000, type="l", col="red", lwd=2, 
+      main="Figure 1b. Assumed distribution of withdrawals", xlab="Withdrawal amount", ylab="Probability")
+```
+
+
+
+```{r}
+simulation <- function(month="2018-08", startTotal=100000000, numberDeposits=1000, numberWithdraws=2000){
+  #Inputs
+  #month - String format "yyyy-mm"
+  #startTotal - Total portfolio amount at start of month
+  #numberDeposits - Number of deposits to simulate each day
+  #numberWithdraws - Number of withdrawals to simulate each day
+  
+  #Dates
+  startDate <- paste(month,"-01",sep="")
+  nDay <- days_in_month(as.Date(startDate))
+  dates <- as.character(seq(from=as.Date(startDate)-days(1), by="1 day", length.out=nDay+1))
+  
+  #Portfolio data
+  portfolio <- as.data.frame(matrix(0, nrow=nDay+1, ncol=5))
+  colnames(portfolio) <- c("Date","Total","Deposits","Withdraws","Growth")
+  portfolio$Date <- dates
+  portfolio[1,"Total"] <- startTotal
+  
+  #Simulate deposits and withdrawals for each day
+  #Deposits follow a lognormal distribution and withdrawals follow a truncated normal distribution
+  #Use the random number generators for the relevant distributions
+  #Minimum deposit is 50, maximum deposit is 500000
+  #Maximum withdrawal is 5000
+  for (i in 1:nDay){
+    deposits <- round(rlnorm(numberDeposits, meanlog=0.8, sdlog=1)*1000, 2)
+    portfolio[i+1,"Deposits"] <- sum(deposits[deposits>=50 & deposits<=500000])
+    withdraws <- round(rtnorm(numberWithdraws, mean=1, sd=2, lower=0, upper=5)*1000, 2)
+    portfolio[i+1,"Withdraws"] <- min(sum(withdraws), portfolio[i,"Total"])
+    portfolio[i+1,"Total"] <- portfolio[i,"Total"] + portfolio[i+1,"Deposits"] - portfolio[i+1,"Withdraws"]
+  }
+  
+  #Growth in portfolio since start of the month expressed in %
+  portfolio$Growth <- round(100*(portfolio$Total/startTotal-1), 2)
+  
+  return(portfolio)
+}
+```
+
+</br>
+
+#### We create a function that simulates deposits and withdrawals for each day in a given month based on the above distributions. It outputs a summary of the transactions including the total portfolio per day and its growth rate (expressed in %) since the start of the month. Using this function, we run simulations for the month of August 2018 with an opening balance of 100 million rands. The number of deposits and withdrawals per day is adjusted so that we can obtain results showing strong, stable and weak portfolios. For a stable portfolio, we simulate one such that the coin growth is within 3% higher or lower than the opening balance. The transaction summary of that scenario is outputted below.
+
+```{r}
+portfolioStrong <- simulation("2018-08", 100000000, 7000, 10000)
+portfolioWeak <- simulation("2018-08", 100000000, 5000, 11000)
+i=0
+found=0
+while (found==0 & i<=1000){
+  portfolioStable <- simulation("2018-08", 100000000, 6000, 11600)
+  #Stable growth must be within -3% to 3%
+  if (max(abs(portfolioStable$Growth))<3){ found <- 1 }
+  i <- i+1
+  if (found==0 & i>1000){ print("Stable scenario was not found in 1000 iterations with the specified parameters.") }
+}
+
+df <- portfolioStable
+df[,2:4] <- format(df[,2:4], decimal.mark=".", big.mark=" ")
+kable(df, caption="Table 1. Transaction summary for stable portfolio")
+```
+
+</br>
+
+#### Finally, we plot the simulated total coin amount as well as its growth from the start of the month for all three scenarios.
+
+```{r}
+nDay <- nrow(portfolioStrong)-1
+yMax <- max(portfolioStrong$Total, portfolioStable$Total, portfolioWeak$Total)/1000000
+par(bg="lightyellow")
+plot(c(0:nDay), portfolioStrong$Total/1000000, ylim=c(0,yMax), type="l", col="green", lwd=3,
+     main="Figure 2a. Simulated portfolio", xlab="Day", ylab="Amount (millions)")
+lines(c(0:nDay), portfolioStable$Total/1000000, type="l", col="blue", lwd=3)
+lines(c(0:nDay), portfolioWeak$Total/1000000, type="l", col="red", lwd=3)
+legend("topleft", legend=c("Strong","Stable","Weak"), col=c("green","blue","red"), lwd=c(3,3,3))
+```
+
+```{r}
+nDay <- nrow(portfolioStrong)-1
+yMax <- max(portfolioStrong$Growth, portfolioStable$Growth, portfolioWeak$Growth)
+yMin <- min(portfolioStrong$Growth, portfolioStable$Growth, portfolioWeak$Growth)
+par(bg="lightyellow")
+plot(c(0:nDay), portfolioStrong$Growth, ylim=c(yMin,yMax), type="l", col="green", lwd=3,
+     main="Figure 2b. Simulated portfolio growth", xlab="Day", ylab="Growth (%)")
+lines(c(0:nDay), portfolioStable$Growth, type="l", col="blue", lwd=3)
+lines(c(0:nDay), portfolioWeak$Growth, type="l", col="red", lwd=3)
+legend("topleft", legend=c("Strong","Stable","Weak"), col=c("green","blue","red"), lwd=c(3,3,3))
+```
+
+</br>
+
+#### The strong portfolio is one with a high growth rate, where there are significantly more deposits than withdrawals. The stable portfolio shows close to zero growth. And the weak portfolio has a negative growth rate, which indicates a declining amount of coin being held.
+
+<hr>
+</br>
+</br>
+
