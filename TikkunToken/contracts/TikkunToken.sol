@@ -100,6 +100,13 @@ contract TikkunToken is ERC621Interface, Owned, SafeMath {
     }
 
     // ------------------------------------------------------------------------
+    // Get the withdrawal balance for account `tokenOwner`
+    // ------------------------------------------------------------------------
+    function withdrawalBalanceOf(address tokenOwner) public view returns (uint balance) {
+        return amountSpent[tokenOwner];
+    }
+
+    // ------------------------------------------------------------------------
     // Transfer the balance from token owner's account to `to` account
     // - Owner's account must have sufficient balance to transfer
     // - 0 value transfers are allowed
