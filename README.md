@@ -6,6 +6,9 @@ Tikkun is translated as to “fix” or “repair” which is based on the conce
 Tikkun is the stable cryptocurrency tailor made for South Africans to transact, save and earn interest. It is now possible to enter the exciting cryptocurrency space without the concern of volatility. 
 Tikkun coin will be backed by a 1:1 ratio of South African Rands which are divided into a cash and safe government bond investment portfolio. Through this investment, you will receive monthly interest on your holdings for everyday that you hold Tikkun. 
 
+## Documentation
+All the documentation for the project is in the `docs` directory inside the `TikkunToken/src` directory. The documentation includes instructions on how to use the website, the business plan, the portfolio model and the portfolio simulations.
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
@@ -51,7 +54,7 @@ This will start an Ethereum emulator
 ```
  truffle test
 ```
-This will run all the tests in the test directory
+This will run all the tests in the test directory. If all the tests pass you are good to go ahead with deploying.
 
 ## Deployment
 
